@@ -7,14 +7,16 @@ import {
   CardMedia,
   IconButton,
   Typography,
-  useTheme,
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import { capitalizeFirstWord } from './CategoriesSection';
+import { useCart } from '../context/CartContext';
 
 const ProductCard = ({ item }) => {
   const [liked, setLiked] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const { cart, dispatch } = useCart();
 
   const handleLikeClick = () => {
     setLiked(!liked);
@@ -29,56 +31,43 @@ const ProductCard = ({ item }) => {
   };
 
   const theme = useStoreTheme();
-  const muiTheme = useTheme();
+
+  const addToCart = (product) => {
+    dispatch({ type: 'ADD_TO_CART', payload: product });
+  };
 
   return (
     <Card
       sx={{
-        width: '200px',
+        width: '300px',
         height: '350px',
         overflow: 'hidden',
         margin: '10px',
         display: 'flex',
+        padding: '10px',
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
         borderTopRightRadius: '30px',
-        backgroundColor: theme?.palette?.primary.main,
+        backgroundColor: 'white',
         borderBottomLeftRadius: '30px',
         position: 'relative',
         transition:
           'transform 0.3s ease-in-out, background-color 0.3s ease-in-out',
         '&:hover': {
           transform: 'scale(1.05)',
-          backgroundColor: theme?.palette?.background.default,
+          backgroundColor: 'white',
         },
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <IconButton
-        sx={{
-          position: 'absolute',
-          top: '5px',
-          left: '5px',
-          color: liked
-            ? theme?.palette?.accent.main
-            : theme?.palette?.text.primary,
-          backgroundColor: hovered
-            ? theme?.palette?.background.default
-            : 'transparent',
-        }}
-        onClick={handleLikeClick}
-      >
-        <FavoriteIcon />
-      </IconButton>
-
       <CardActionArea>
         <CardMedia
           component='img'
-          height='50%'
+          height='45%'
           padding='10px'
-          width='50%'
+          width='35%'
           image={item.image}
           alt={item.name}
           sx={{
@@ -100,10 +89,10 @@ const ProductCard = ({ item }) => {
             component='div'
             textTransform={'capitalize'}
           >
-            {item.name}
+            {capitalizeFirstWord(item.name)}
           </Typography>
           <Typography
-            variant='body2'
+            variant='h5'
             color='text.secondary'
             textTransform={'capitalize'}
           >
@@ -111,8 +100,27 @@ const ProductCard = ({ item }) => {
           </Typography>
         </CardContent>
       </CardActionArea>
-
       <IconButton
+        sx={{
+          position: 'absolute',
+          top: '5px',
+          left: '5px',
+          color: liked
+            ? theme?.palette?.accent.main
+            : theme?.palette?.text.primary,
+          backgroundColor: hovered
+            ? theme?.palette?.background.default
+            : 'transparent',
+        }}
+        onClick={handleLikeClick}
+      >
+        <FavoriteIcon />
+      </IconButton>
+      <IconButton
+        onClick={() => {
+          console.log(item);
+          addToCart(item);
+        }}
         sx={{
           position: 'absolute',
           bottom: '5px',

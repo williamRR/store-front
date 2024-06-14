@@ -6,6 +6,8 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { ToastContainer } from 'react-toastify';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { AuthProvider } from '../../store-admin/src/context/AuthContext.jsx';
+import { CartProvider } from './context/CartContext.jsx';
+import RightSidebar from './components/RightSidebar.jsx';
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <AuthProvider>
@@ -24,7 +26,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           theme='light'
         />
         <Router>
-          <App />
+          <CartProvider>
+            <RightSidebar />
+            <App />
+          </CartProvider>
         </Router>
         {/* </Container> */}
       </StoreThemeProvider>

@@ -3,10 +3,10 @@ import Carousel from 'react-material-ui-carousel';
 
 const AdCarousel = () => {
   const images = [
-    'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.po1iOHp8IKYwh3ytDB9EigHaFb%26pid%3DApi&f=1&ipt=630f284af86b382d2698d2c8cbc043b0ceabb88ebe8e39416b03092de0055389&ipo=images',
-    'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.jMNjsJh1Vvo4ZPGhse-XPAHaGw%26pid%3DApi&f=1&ipt=d84dc2bfae45640e9fa6e2a975d1650a8598be38942d9cc5a1ad54ee3f8e1f4a&ipo=images',
-    'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.rX-6ovRpk0DbhwwlB703_gHaE6%26pid%3DApi&f=1&ipt=cbd38a8713d64563be98d18a0b32aa38361f6e9a6ce36f1b68e6c56430d95b20&ipo=images',
-    'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse1.mm.bing.net%2Fth%3Fid%3DOIP.cyMU1pjjrJCsdYqxigcf3AHaE8%26pid%3DApi&f=1&ipt=d97a8398631f241504c411c96ee113dc0af914d91fe242f8a5d45a0eb1f361f1&ipo=images',
+    'https://files.oaiusercontent.com/file-jZfhefDQzL9TqasgGz76ZipS?se=2024-06-13T20%3A58%3A44Z&sp=r&sv=2023-11-03&sr=b&rscc=max-age%3D31536000%2C%20immutable&rscd=attachment%3B%20filename%3D48871e6a-2290-43b3-8948-9df3affe72b3.webp&sig=RFghv9wz8ZexwbaFGIVi%2BhWKs%2B/yJIQVNqJL9Vw8eE8%3D',
+    'https://files.oaiusercontent.com/file-zhLKkK0PuXBobDtVKsiJ6hox?se=2024-06-13T20%3A59%3A50Z&sp=r&sv=2023-11-03&sr=b&rscc=max-age%3D31536000%2C%20immutable&rscd=attachment%3B%20filename%3D7ca986c0-d007-4a69-a48c-0560e614d493.webp&sig=deQwk8fqcyWbx2GSWOQy3o4TLhze0194lBcclwabaP0%3D',
+    'https://yodabbadabba.com/wp-content/uploads/2018/11/BHO-Extraction-Guide.jpg',
+    'https://www.smokejokers.com/wp-content/uploads/2020/04/Bonglab-X5-17-cm-azul.jpg',
   ];
 
   const items = [
@@ -34,8 +34,8 @@ const AdCarousel = () => {
       sx={{
         // marginTop: '10px',
         width: '100vw',
-        maxHeight: '25vh',
-        minHeight: '25vh',
+        maxHeight: '50vh',
+        minHeight: '50vh',
 
         overflow: 'hidden', // Recortar cualquier contenido que sobresalga
         // display: 'flex', // Usa flexbox para centrar el contenido

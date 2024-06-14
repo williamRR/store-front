@@ -37,7 +37,6 @@ export const StoreThemeProvider = ({ children }) => {
         if (!res.ok) {
           throw new Error('Failed to fetch data');
         }
-
         const styleData = await res.json();
         const { palette } = styleData;
         const theme = createTheme({
@@ -69,8 +68,8 @@ export const StoreThemeProvider = ({ children }) => {
         setTheme(theme);
         setCategories(
           [{ _id: 'home', name: 'Inicio' }]
-            .concat(styleData.categories)
-            .concat({ _id: 'allProducts', name: 'Todos' }),
+            .concat({ _id: 'allProducts', name: 'Todos' })
+            .concat(styleData.categories),
         );
         setStyleData(styleData);
         setTimeout(() => {

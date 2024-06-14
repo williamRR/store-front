@@ -14,6 +14,7 @@ import { useStoreTheme } from '../context/StoreThemeContext';
 import { useTheme } from '@mui/system';
 import { styled, alpha } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
+import logo from '../assets/logo.jpg';
 
 const StoreHeader = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -21,6 +22,7 @@ const StoreHeader = () => {
   const { styleData } = useStoreTheme();
   const { palette } = styleData || {};
   const { smallLogo } = palette || '';
+  console.log(smallLogo);
   const theme = useTheme();
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -42,12 +44,12 @@ const StoreHeader = () => {
           <Grid item xs={5}>
             <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
               <img
-                src={smallLogo}
+                src={logo}
                 alt='Logo'
                 style={{
                   objectFit: 'cover',
                   // width: '100%',
-                  height: '5vh',
+                  height: '15vh',
                 }}
               />
             </Typography>
