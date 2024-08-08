@@ -1,5 +1,8 @@
 import CategoriesSection from '../components/CategoriesSection';
-// import Landing from '../pages/Landing';
+import Register from '../pages/Register';
+import Login from '../pages/Login';
+import ResetPassword from '../pages/Reset-Password';
+import Verify from '../pages/Verify';
 
 export const paths = [
   {
@@ -8,5 +11,42 @@ export const paths = [
     name: 'Landing',
     component: <CategoriesSection />,
     accesible: 'all',
+  },
+  {
+    id: 'Verify',
+    path: '/verify/:verifyToken',
+    name: 'Verify',
+    component: <Verify />,
+    accesible: 'all',
+  },
+  {
+    id: 'login',
+    path: '/login',
+    name: 'login',
+    component: <Login />,
+    accesible: 'all',
+  },
+  {
+    id: 'register',
+    path: '/register',
+    name: 'Register',
+    component: <Register />,
+    accesible: 'all',
+  },
+  {
+    id: 'reset-password',
+    path: '/reset-password',
+    name: 'Reset Password',
+    component: <ResetPassword />,
+    accesible: 'all',
+  },
+  {
+    id: '404',
+    path: '*',
+    name: '404',
+    accessible: 'all',
+    showInSidebar: false,
+    crud: false,
+    component: <h1>404 Not Found</h1>,
   },
 ];

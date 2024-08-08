@@ -8,22 +8,24 @@ import {
   Menu,
   Grid,
   InputBase,
+  Box,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import AccountCircle from '@mui/icons-material/AccountCircle';
-import { useStoreTheme } from '../context/StoreThemeContext';
-import { useTheme } from '@mui/system';
+import { useStoreConfig } from '../context/StoreConfigContext';
 import { styled, alpha } from '@mui/material/styles';
 import SearchIcon from '@mui/icons-material/Search';
-import logo from '../assets/logo.jpg';
+import ShoppingCart from '@mui/icons-material/ShoppingCart';
 
 const StoreHeader = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-  const { styleData } = useStoreTheme();
-  const { palette } = styleData || {};
-  const { smallLogo } = palette || '';
-  console.log(smallLogo);
-  const theme = useTheme();
+  const navigate = useNavigate();
+  const {
+    images: { smallLogo },
+    theme,
+    isAuthenticated,
+  } = useStoreConfig();
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -31,73 +33,119 @@ const StoreHeader = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
+  const handleLogoClick = () => {
+    navigate('/');
+  };
+
+  const handleLogin = () => {
+    navigate('/login');
+    handleClose();
+  };
+
+  const handleLogout = () => {
+    // Aquí podrías agregar la lógica para cerrar sesión
+    navigate('/');
+    handleClose();
+  };
+
   return (
     <AppBar
       position='static'
+      elevation={0}
       sx={{
-        width: '100%', // Abarcar todo el ancho
-        backgroundColor: theme?.palette?.primary?.main, // Color de fondo del tema
+        backgroundColor: theme?.palette?.primary?.main,
       }}
     >
-      <Toolbar>
-        <Grid container justifyContent={'space-evenly'} alignContent={'center'}>
-          <Grid item xs={5}>
-            <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
-              <img
-                src={logo}
-                alt='Logo'
-                style={{
-                  objectFit: 'cover',
-                  // width: '100%',
-                  height: '15vh',
-                }}
-              />
-            </Typography>
+      <Toolbar
+        sx={{
+          width: '90vw',
+          marginLeft: '5vw',
+        }}
+      >
+        <Grid container justifyContent={'space-between'} alignItems={'center'}>
+          <Typography
+            variant='h6'
+            component='div'
+            onClick={handleLogoClick}
+            sx={{ cursor: 'pointer' }}
+          >
+            <img
+              src={smallLogo}
+              alt='Logo'
+              style={{
+                objectFit: 'cover',
+                margin: 10,
+                marginLeft: 20,
+                height: '8vh',
+              }}
+            />
+          </Typography>
+          <Grid
+            item
+            xs={6}
+            sx={{
+              width: '100%',
+            }}
+          >
+            <Box display='flex' justifyContent='center'>
+              <Search>
+                <SearchIconWrapper>
+                  <SearchIcon />
+                </SearchIconWrapper>
+                <StyledInputBase
+                  placeholder='Buscar...'
+                  inputProps={{
+                    'aria-label': 'search',
+                    width: '100%',
+                  }}
+                />
+              </Search>
+            </Box>
           </Grid>
-          <Grid item xs={4}>
-            {/* Agregado un tema de ejemplo */}
-            <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <StyledInputBase
-                placeholder='Search…'
-                inputProps={{ 'aria-label': 'search' }}
-              />
-            </Search>
-          </Grid>
-          <Grid item xs={2} container justifyContent={'flex-end'}>
-            {/* Icono de inicio de sesión a la derecha */}
-            <div>
-              <IconButton
-                size='large'
-                aria-label='account of current user'
-                aria-controls='menu-appbar'
-                aria-haspopup='true'
-                onClick={handleMenu}
-                color='inherit'
-              >
-                <AccountCircle />
-              </IconButton>
-              <Menu
-                id='menu-appbar'
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                open={open}
-                onClose={handleClose}
-              >
-                <MenuItem onClick={handleClose}>Perfil</MenuItem>
-                <MenuItem onClick={handleClose}>Cerrar Sesión</MenuItem>
-              </Menu>
-            </div>
+          <Grid item container xs={1} sx={{ justifyContent: 'space-around' }}>
+            <IconButton
+              size='large'
+              aria-label='account of current user'
+              aria-controls='menu-appbar'
+              aria-haspopup='true'
+              // onClick={toggleDrawer(!isOpen)}
+              color='inherit'
+            >
+              <ShoppingCart />
+            </IconButton>
+            <IconButton
+              size='large'
+              aria-label='account of current user'
+              aria-controls='menu-appbar'
+              aria-haspopup='true'
+              onClick={handleMenu}
+              color='inherit'
+            >
+              <AccountCircle />
+            </IconButton>
+            <Menu
+              id='menu-appbar'
+              anchorEl={anchorEl}
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              open={open}
+              onClose={handleClose}
+            >
+              {!isAuthenticated && (
+                <MenuItem onClick={handleLogin}>Iniciar Sesión</MenuItem>
+              )}
+              {isAuthenticated && (
+                <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
+              )}
+            </Menu>
           </Grid>
         </Grid>
       </Toolbar>
@@ -109,21 +157,18 @@ export default StoreHeader;
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
-  placeholder: 'Buscar...',
-
-  marginTop: '1vh',
   borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  backgroundColor: alpha('#ffffff', 0.25),
   '&:hover': {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
+    backgroundColor: alpha('#ffffff', 0.35),
   },
-  marginRight: theme.spacing(2),
-  marginLeft: 0,
   width: '100%',
   [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(3),
     width: 'auto',
   },
+  marginLeft: theme.spacing(2),
+  marginRight: theme.spacing(2),
+  border: `1px solid ${alpha('#ffffff', 0.5)}`,
 }));
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
@@ -137,16 +182,14 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  placeholder: 'Buscar...',
   color: 'inherit',
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     transition: theme.transitions.create('width'),
     width: '100%',
     [theme.breakpoints.up('md')]: {
-      width: '20ch',
+      width: '30ch',
     },
   },
 }));
