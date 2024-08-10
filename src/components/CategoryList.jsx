@@ -16,7 +16,7 @@ const CategoryList = () => {
         overflowX: 'hidden',
         whiteSpace: 'nowrap',
         maxWidth: '100vw',
-        backgroundColor: theme.palette.background,
+        // backgroundColor: theme.palette.background,
         padding: '1rem 0',
       }}
     >
