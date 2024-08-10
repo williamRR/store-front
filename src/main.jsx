@@ -10,24 +10,26 @@ import { AuthProvider } from './context/AuthContext.jsx';
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <AuthProvider>
-      <CssBaseline />
-      <ToastContainer
-        position='top-right'
-        autoClose={4000}
-        hideProgressBar={true}
-        newestOnTop={true}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme='light'
-      />
-      <Router>
-        <CartProvider>
-          <App />
-        </CartProvider>
-      </Router>
+      <CartProvider>
+        <CssBaseline />
+        <ToastContainer
+          position='top-right'
+          autoClose={4000}
+          hideProgressBar={true}
+          newestOnTop={true}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme='light'
+        />
+        <Router>
+          <CartProvider>
+            <App />
+          </CartProvider>
+        </Router>
+      </CartProvider>
     </AuthProvider>
   </React.StrictMode>,
 );

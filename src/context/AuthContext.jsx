@@ -1,9 +1,8 @@
-// AuthContext.js
 import axios from 'axios';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 const AuthContext = createContext();
-import { toast } from 'react-toastify';
 
 function decodeToken(token) {
   try {
@@ -23,6 +22,9 @@ function decodeToken(token) {
     return null;
   }
 }
+const urlBase = `${import.meta.env.VITE_API_URL}/auth/store/${
+  import.meta.env.VITE_STORE_ID
+}/`;
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -30,9 +32,10 @@ export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(
     localStorage.getItem('accessToken'),
   );
+
   const login = async (formData) => {
     try {
-      const url = `${import.meta.env.VITE_API_URL}/auth/login`;
+      const url = `${urlBase}login`;
       const { data } = await axios.post(url, formData, {
         headers: {
           'Content-Type': 'application/json',
@@ -47,6 +50,37 @@ export const AuthProvider = ({ children }) => {
       setUserData(userInfo);
       setAccessToken(accessToken);
       toast.success('Bienvenido ' + userInfo.name);
+    } catch (error) {
+      toast.error('Error: ' + error.message);
+    }
+  };
+
+  const register = async (formData) => {
+    try {
+      const url = `${urlBase}register`;
+      await axios.post(url, formData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      return {
+        success: true,
+        message: 'Registro exitoso. Ahora puede iniciar sesión.',
+      };
+    } catch (error) {
+      return { success: false, message: 'Error: ' + error.message };
+    }
+  };
+
+  const forgotPassword = async (formData) => {
+    try {
+      const url = `${urlBase}forgot-password`;
+      await axios.post(url, formData, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      toast.success('Correo de recuperación enviado.');
     } catch (error) {
       toast.error('Error: ' + error.message);
     }
@@ -74,7 +108,15 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ userData, isAuthenticated, login, logout, accessToken }}
+      value={{
+        userData,
+        isAuthenticated,
+        login,
+        logout,
+        register,
+        forgotPassword,
+        accessToken,
+      }}
     >
       {children}
     </AuthContext.Provider>
