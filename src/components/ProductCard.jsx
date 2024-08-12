@@ -46,8 +46,8 @@ const ProductCard = ({ item }) => {
   return (
     <Card
       sx={{
-        width: 250,
-        overflow: 'hidden',
+        width: { xs: '100%', sm: '48%', md: '32%', lg: '18%' }, // Ancho flexible para diferentes tamaños de pantalla
+        maxWidth: 300, // Asegura que no se expanda demasiado
         margin: 1,
         display: 'flex',
         flexDirection: 'column',
@@ -59,10 +59,10 @@ const ProductCard = ({ item }) => {
         transition:
           'transform 0.3s ease-in-out, background-color 0.3s ease-in-out',
         '&:hover': {
-          transform: 'scale(1.01)',
-          backgroundColor: 'white',
+          transform: 'scale(1.02)',
+          backgroundColor: '#f9f9f9',
         },
-        boxShadow: 1,
+        boxShadow: 2,
       }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -74,14 +74,14 @@ const ProductCard = ({ item }) => {
           alt={item.name}
           sx={{
             width: '100%',
-            height: 200,
+            height: 150, // Altura reducida para hacerlo más compacto
             objectFit: 'cover',
           }}
         />
-        <CardContent sx={{ textAlign: 'center' }}>
+        <CardContent sx={{ textAlign: 'center', padding: 1 }}>
           <Typography
-            sx={{ marginTop: 1 }}
-            variant='h5'
+            sx={{ marginTop: 0.5 }}
+            variant='h6' // Título más pequeño
             component='div'
             textTransform='capitalize'
             color='primary.main'
@@ -89,9 +89,9 @@ const ProductCard = ({ item }) => {
             {item.name}
           </Typography>
           <Typography
-            variant='h6'
+            variant='body1' // Precio con tamaño reducido
             color='text.secondary'
-            sx={{ marginBottom: 1 }}
+            sx={{ marginBottom: 0.5 }}
           >
             ${item.price}
           </Typography>
@@ -108,24 +108,12 @@ const ProductCard = ({ item }) => {
               value={quantity}
               onChange={handleQuantityChange}
               size='small'
-              sx={{ width: 60, marginRight: 1 }}
+              sx={{ width: 50, marginRight: 0.5 }} // Campos más pequeños
             />
             <Typography variant='body2'>Units</Typography>
           </Box>
         </CardContent>
       </CardActionArea>
-      {/* <IconButton
-        sx={{
-          position: 'absolute',
-          top: 5,
-          left: 5,
-          color: liked ? 'secondary.main' : 'text.primary',
-          backgroundColor: hovered ? 'rgba(255, 255, 255, 0.7)' : 'transparent',
-        }}
-        onClick={handleLikeClick}
-      >
-        <FavoriteIcon />
-      </IconButton> */}
       <IconButton
         onClick={() => addToCart(item)}
         sx={{
