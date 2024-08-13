@@ -60,7 +60,7 @@ const ProductCard = ({ item }) => {
     <Card
       sx={{
         width: { xs: '100%', sm: '48%', md: '32%', lg: '18%' }, // Ancho flexible para diferentes tamaños de pantalla
-        maxWidth: 250, // Ancho máximo reducido
+        maxWidth: 200, // Ancho máximo reducido
         margin: 1,
         display: 'flex',
         flexDirection: 'column',

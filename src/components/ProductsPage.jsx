@@ -15,7 +15,6 @@ import Sidebar from './Sidebar';
 import axios from 'axios';
 import ProductCard from './ProductCard';
 import TagsBanner from './TagsBanner';
-import BrandsBanner from './BrandsBanner'; // Import the new BrandsBanner component
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -238,7 +237,7 @@ const ProductsPage = () => {
             <CircularProgress size={200} />
           </Box>
         ) : (
-          <Grid container spacing={1}>
+          <Grid container spacing={1} justifyContent={'space-around'}>
             {products.map((product) => (
               <ProductCard item={product} key={product._id} />
             ))}
