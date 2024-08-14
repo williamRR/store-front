@@ -10,12 +10,9 @@ import {
   Box,
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import FavoriteIcon from '@mui/icons-material/Favorite';
 import { useCart } from '../context/CartContext';
 import { toast } from 'react-toastify';
-
 const ProductCard = ({ item }) => {
-  const [liked, setLiked] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const { dispatch } = useCart();
@@ -30,10 +27,6 @@ const ProductCard = ({ item }) => {
       .join(' '); // Une las palabras nuevamente
   };
 
-  const handleLikeClick = () => {
-    setLiked(!liked);
-  };
-
   const handleMouseEnter = () => {
     setHovered(true);
   };
@@ -43,15 +36,8 @@ const ProductCard = ({ item }) => {
   };
 
   const handleQuantityChange = (event) => {
+    toast('Cantidad actualizada');
     setQuantity(event.target.value);
-  };
-
-  const addToCart = (product) => {
-    const productWithQuantity = {
-      ...product,
-      quantity: parseInt(quantity, 10),
-    };
-    dispatch({ type: 'ADD_TO_CART', payload: productWithQuantity });
   };
 
   const imageSrc = item.image ? item.image : 'https://via.placeholder.com/150';
@@ -61,6 +47,7 @@ const ProductCard = ({ item }) => {
       sx={{
         width: { xs: '100%', sm: '48%', md: '32%', lg: '18%' }, // Ancho flexible para diferentes tamaños de pantalla
         maxWidth: 200, // Ancho máximo reducido
+        minWidth: 200, // Ancho mínimo reducido
         margin: 1,
         display: 'flex',
         flexDirection: 'column',

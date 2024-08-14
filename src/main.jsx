@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import { BrowserRouter as Router } from 'react-router-dom';
 import { CartProvider } from './context/CartContext.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
@@ -14,8 +16,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <CssBaseline />
         <ToastContainer
           position='top-right'
-          autoClose={4000}
           hideProgressBar={true}
+          autoClose={4000}
           newestOnTop={true}
           closeOnClick
           rtl={false}

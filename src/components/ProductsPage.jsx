@@ -132,88 +132,110 @@ const ProductsPage = () => {
         availableBrands={availableBrands}
         filters={filters}
       />
-      <main style={{ marginLeft: '240px', padding: '20px', flexGrow: 1 }}>
+      <main
+        style={{
+          marginLeft: '240px',
+          padding: '20px',
+          // flexGrow: 1,
+          // marginTop: '70px',
+          maxWidth: '70vw',
+        }}
+      >
         <Box
           display='flex'
           justifyContent='space-between'
           alignItems='center'
+          sx={{
+            position: 'absolute',
+            backgroundColor: 'white',
+            border: '1px solid #ccc',
+            width: '60vw', // Ajusta según sea necesario
+            zIndex: 1,
+            padding: '8px', // Agrega padding para mejorar el aspecto
+          }}
           mb={2}
         >
           <TextField
             size='small'
-            label='Search'
+            label='Buscar'
             variant='outlined'
             onChange={handleSearchChange}
+            sx={{ flexShrink: 1, minWidth: '150px', marginRight: '8px' }} // Fija un ancho mínimo y márgenes
           />
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              width: '300px', // Fixed width for pagination
-              flexShrink: 0,
-            }}
+
+          <FormControl
+            variant='outlined'
+            size='small'
+            sx={{ minWidth: 120, marginRight: '8px', flexShrink: 1 }}
           >
-            <Pagination
-              count={pagination.totalPages}
-              page={pagination.page}
-              onChange={handlePageChange}
-              color='primary'
-            />
-          </Box>
-          <Box display='flex'>
-            {/* Limit control */}
-            <FormControl
-              variant='outlined'
-              size='small'
-              sx={{ minWidth: 120, mr: 2 }}
+            <InputLabel id='limit-select-label'>Página</InputLabel>
+            <Select
+              labelId='limit-select-label'
+              value={pagination.limit}
+              onChange={(event) => handleLimitChange(event.target.value)}
+              label='Items per page'
             >
-              <InputLabel id='limit-select-label'>Items per page</InputLabel>
-              <Select
-                labelId='limit-select-label'
-                value={pagination.limit}
-                onChange={(event) => handleLimitChange(event.target.value)}
-                label='Items per page'
-              >
-                <MenuItem value={25}>25</MenuItem>
-                <MenuItem value={50}>50</MenuItem>
-                <MenuItem value={100}>100</MenuItem>
-              </Select>
-            </FormControl>
+              <MenuItem value={25}>25</MenuItem>
+              <MenuItem value={50}>50</MenuItem>
+              <MenuItem value={100}>100</MenuItem>
+            </Select>
+          </FormControl>
 
-            {/* Sort control */}
-            <FormControl
-              variant='outlined'
-              size='small'
-              sx={{ minWidth: 120, mr: 2 }}
+          <FormControl
+            variant='outlined'
+            size='small'
+            sx={{ minWidth: 120, marginRight: '8px', flexShrink: 1 }}
+          >
+            <InputLabel id='sort-select-label'>Criterio</InputLabel>
+            <Select
+              labelId='sort-select-label'
+              value={pagination.sort}
+              onChange={(event) => handleSortChange(event.target.value)}
+              label='Criterio'
             >
-              <InputLabel id='sort-select-label'>Sort by</InputLabel>
-              <Select
-                labelId='sort-select-label'
-                value={pagination.sort}
-                onChange={(event) => handleSortChange(event.target.value)}
-                label='Sort by'
-              >
-                <MenuItem value='name'>Name</MenuItem>
-                <MenuItem value='price'>Price</MenuItem>
-                <MenuItem value='date'>Date</MenuItem>
-                <MenuItem value='popularity'>Popularity</MenuItem>
-              </Select>
-            </FormControl>
+              <MenuItem value='name'>Nombre</MenuItem>
+              <MenuItem value='price'>Precio</MenuItem>
+              <MenuItem value='date'>Reciente</MenuItem>
+              <MenuItem value='popularity'>Popularidad</MenuItem>
+            </Select>
+          </FormControl>
 
-            {/* Order control */}
-            <FormControl variant='outlined' size='small' sx={{ minWidth: 120 }}>
-              <InputLabel id='order-select-label'>Order</InputLabel>
-              <Select
-                labelId='order-select-label'
-                value={pagination.order}
-                onChange={(event) => handleOrderChange(event.target.value)}
-                label='Order'
-              >
-                <MenuItem value='asc'>Ascending</MenuItem>
-                <MenuItem value='desc'>Descending</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
+          <FormControl
+            variant='outlined'
+            size='small'
+            sx={{ minWidth: 120, marginRight: '8px', flexShrink: 1 }}
+          >
+            <InputLabel id='order-select-label'>Orden</InputLabel>
+            <Select
+              labelId='order-select-label'
+              value={pagination.order}
+              onChange={(event) => handleOrderChange(event.target.value)}
+              label='Order'
+            >
+              <MenuItem value='asc'>Ascendente</MenuItem>
+              <MenuItem value='desc'>Descendente</MenuItem>
+            </Select>
+          </FormControl>
+
+          {/* <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            maxWidth: '300px', // Ancho fijo para la paginación
+            flexShrink: 0,
+          }}
+        > */}
+          <Pagination
+            count={pagination.totalPages}
+            page={pagination.page}
+            variant='outlined'
+            size='small'
+            siblingCount={1}
+            boundaryCount={1}
+            showLastButton
+            onChange={handlePageChange}
+            color='secondary'
+          />
         </Box>
 
         <TagsBanner
@@ -237,7 +259,7 @@ const ProductsPage = () => {
             <CircularProgress size={200} />
           </Box>
         ) : (
-          <Grid container spacing={1} justifyContent={'space-around'}>
+          <Grid container justifyContent={'flex-start'}>
             {products.map((product) => (
               <ProductCard item={product} key={product._id} />
             ))}

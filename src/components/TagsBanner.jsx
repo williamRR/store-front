@@ -4,7 +4,13 @@ import { Box, Chip, Typography } from '@mui/material';
 const TagsBanner = ({ filters, removeTag, clearAllTags }) => {
   return (
     <Box
-      sx={{ display: 'flex', alignItems: 'center', gap: 1, marginBottom: 2 }}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+        marginBottom: 2,
+        marginTop: '70px',
+      }}
     >
       {filters.map((tag) => (
         <Chip

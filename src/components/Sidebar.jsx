@@ -40,8 +40,8 @@ const Sidebar = ({ setFilters, availableTags, availableBrands, filters }) => {
     <Box
       sx={{
         width: '240px',
-        position: 'fixed',
-        height: '100vh',
+        position: 'absolute',
+        // height: '100vh',
         overflowY: 'auto',
         backgroundColor: '#f7f7f7',
         padding: '1rem',
