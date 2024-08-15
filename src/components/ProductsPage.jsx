@@ -110,6 +110,10 @@ const ProductsPage = () => {
   };
 
   const removeTag = (tagId) => {
+    if (tagId === filters.brand?._id) {
+      removeBrand();
+      return;
+    }
     setFilters((prevFilters) => {
       const tags = prevFilters.tags.filter((tag) => tag._id !== tagId);
       return { ...prevFilters, tags };

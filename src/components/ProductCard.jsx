@@ -6,8 +6,6 @@ import {
   CardMedia,
   IconButton,
   Typography,
-  TextField,
-  Box,
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useCart } from '../context/CartContext';
@@ -30,6 +28,14 @@ const ProductCard = ({ item }) => {
   const handleMouseEnter = () => {
     setHovered(true);
   };
+
+  function formatPrice(price) {
+    // Convertir a string si es un número
+    const strPrice = price.toString();
+
+    // Utilizar una expresión regular para añadir los puntos
+    return strPrice.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  }
 
   const handleMouseLeave = () => {
     setHovered(false);
@@ -92,25 +98,8 @@ const ProductCard = ({ item }) => {
             color='text.secondary'
             sx={{ marginBottom: 0.5 }}
           >
-            ${item.price}
+            ${formatPrice(item.price)}
           </Typography>
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <TextField
-              type='number'
-              InputProps={{ inputProps: { min: 1 } }}
-              value={quantity}
-              onChange={handleQuantityChange}
-              size='small'
-              sx={{ width: 50, marginRight: 0.5 }} // Campos más pequeños
-            />
-            <Typography variant='body2'>Units</Typography>
-          </Box>
         </CardContent>
       </CardActionArea>
       <IconButton
