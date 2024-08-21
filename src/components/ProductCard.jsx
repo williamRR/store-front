@@ -30,10 +30,8 @@ const ProductCard = ({ item }) => {
   };
 
   function formatPrice(price) {
-    // Convertir a string si es un número
     const strPrice = price.toString();
 
-    // Utilizar una expresión regular para añadir los puntos
     return strPrice.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   }
 
@@ -98,7 +96,7 @@ const ProductCard = ({ item }) => {
             color='text.secondary'
             sx={{ marginBottom: 0.5 }}
           >
-            ${formatPrice(item.price)}
+            ${formatPrice(item.price || 0)}
           </Typography>
         </CardContent>
       </CardActionArea>
