@@ -4,10 +4,13 @@ import {
   CircularProgress,
   debounce,
   FormControl,
+  FormControlLabel,
   Grid,
   InputLabel,
   MenuItem,
   Pagination,
+  Radio,
+  RadioGroup,
   Select,
   TextField,
 } from '@mui/material';
@@ -21,6 +24,12 @@ const ProductsPage = () => {
   const [loading, setLoading] = useState(false);
   const [availableTags, setAvailableTags] = useState([]);
   const [availableBrands, setAvailableBrands] = useState([]); //
+  const [grouping, setGrouping] = useState('grouped'); // Default to grouped
+
+  const handleGroupingChange = (event) => {
+    setGrouping(event.target.value);
+  };
+
   const [pagination, setPagination] = useState({
     page: 1,
     totalPages: 1,
@@ -77,6 +86,7 @@ const ProductsPage = () => {
           limit: pagination.limit,
           sort: pagination.sort,
           order: pagination.order,
+          grouping, // Add grouping to the request body
         });
         const { data } = res;
         setAvailableTags(data.availableFilters.tags);
@@ -100,6 +110,7 @@ const ProductsPage = () => {
     pagination.limit,
     pagination.sort,
     pagination.order,
+    grouping, // Add grouping as a dependency
   ]);
 
   const handlePageChange = (event, value) => {
@@ -184,7 +195,23 @@ const ProductsPage = () => {
               <MenuItem value={100}>100</MenuItem>
             </Select>
           </FormControl>
-
+          <RadioGroup
+            row
+            value={grouping}
+            onChange={handleGroupingChange}
+            sx={{ marginRight: '8px' }}
+          >
+            <FormControlLabel
+              value='grouped'
+              control={<Radio />}
+              label='Agrupados'
+            />
+            <FormControlLabel
+              value='ungrouped'
+              control={<Radio />}
+              label='Desagrupados'
+            />
+          </RadioGroup>
           <FormControl
             variant='outlined'
             size='small'

@@ -12,10 +12,8 @@ import { useCart } from '../context/CartContext';
 import { toast } from 'react-toastify';
 const ProductCard = ({ item }) => {
   const [hovered, setHovered] = useState(false);
-  const [quantity, setQuantity] = useState(1);
   const { dispatch } = useCart();
 
-  // Función para capitalizar la primera letra de cada palabra
   const capitalize = (str) => {
     if (!str) return '';
     return str
@@ -37,11 +35,6 @@ const ProductCard = ({ item }) => {
 
   const handleMouseLeave = () => {
     setHovered(false);
-  };
-
-  const handleQuantityChange = (event) => {
-    toast('Cantidad actualizada');
-    setQuantity(event.target.value);
   };
 
   const imageSrc = item.image ? item.image : 'https://via.placeholder.com/150';

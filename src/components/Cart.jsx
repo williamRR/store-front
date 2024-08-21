@@ -60,6 +60,7 @@ const Cart = () => {
       product: item._id,
       quantity: item.quantity,
       price: item.price,
+      entity: item.variants ? 'products' : 'variants',
     }));
     const body = {
       products,
