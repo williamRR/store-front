@@ -18,6 +18,7 @@ import Sidebar from './Sidebar';
 import axios from 'axios';
 import ProductCard from './ProductCard';
 import TagsBanner from './TagsBanner';
+import { useLocation } from 'react-router-dom';
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -25,11 +26,23 @@ const ProductsPage = () => {
   const [availableTags, setAvailableTags] = useState([]);
   const [availableBrands, setAvailableBrands] = useState([]); //
   const [grouping, setGrouping] = useState('grouped'); // Default to grouped
-
+  const {
+    category: { _id: categoryId },
+  } = useLocation().state || {}; // Get category from location state
   const handleGroupingChange = (event) => {
     setGrouping(event.target.value);
   };
 
+  useEffect(() => {
+    if (categoryId) {
+      setFilters({
+        category: categoryId,
+        tags: [],
+        brand: null,
+        query: '',
+      });
+    }
+  }, [categoryId]);
   const [pagination, setPagination] = useState({
     page: 1,
     totalPages: 1,

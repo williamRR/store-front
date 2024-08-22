@@ -24,7 +24,7 @@ const CategoryList = () => {
         {categories.map((category) => (
           <Grid item key={category._id}>
             <Typography
-              onClick={() => navigate(`/products?category=${category._id}`)}
+              onClick={() => navigate(`/products`, { state: { category } })}
               sx={{
                 cursor: 'pointer',
                 backgroundColor: theme.palette.primary.main,
