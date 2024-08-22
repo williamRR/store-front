@@ -9,7 +9,7 @@ const TagsBanner = ({ filters, removeTag, clearAllTags }) => {
         alignItems: 'center',
         gap: 1,
         marginBottom: 2,
-        marginTop: '125px',
+        marginTop: '12px',
       }}
     >
       {filters.map((tag) => (
