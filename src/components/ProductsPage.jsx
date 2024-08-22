@@ -297,6 +297,7 @@ const ProductsPage = () => {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
+              width: '100%', // Ajusta el ancho según sea necesario
               height: '80vh', // Adjust height as needed
             }}
           >

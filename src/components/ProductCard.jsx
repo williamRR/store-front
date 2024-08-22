@@ -42,9 +42,9 @@ const ProductCard = ({ item }) => {
   return (
     <Card
       sx={{
-        width: { xs: '100%', sm: '48%', md: '32%', lg: '18%' }, // Ancho flexible para diferentes tamaños de pantalla
-        maxWidth: 200, // Ancho máximo reducido
-        minWidth: 200, // Ancho mínimo reducido
+        width: { xs: '100%', sm: '48%', md: '30%', lg: '20%' }, // Ajusta el ancho dependiendo del tamaño de la pantalla
+        maxWidth: 180, // Ancho máximo reducido
+        minWidth: 180, // Ancho mínimo reducido
         margin: 1,
         display: 'flex',
         flexDirection: 'column',
@@ -60,8 +60,6 @@ const ProductCard = ({ item }) => {
         },
         boxShadow: 2,
       }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       <CardActionArea>
         <CardMedia
@@ -70,24 +68,25 @@ const ProductCard = ({ item }) => {
           alt={capitalize(item.name)}
           sx={{
             width: '100%',
-            height: 120, // Altura reducida para hacerlo más compacto
-            objectFit: 'cover',
+            height: 120,
+            objectFit: 'contain',
+            backgroundColor: '#f0f0f0',
           }}
         />
-        <CardContent sx={{ textAlign: 'center', padding: 1 }}>
+        <CardContent sx={{ textAlign: 'center', padding: 0.5 }}>
           <Typography
-            sx={{ marginTop: 0.5 }}
-            variant='h6' // Título más pequeño
+            sx={{ marginTop: 0.5, fontSize: '0.9rem', fontWeight: 'bold' }}
+            variant='subtitle1'
             component='div'
             color='primary.main'
+            // noWrap
           >
             {capitalize(item.name)}
           </Typography>
-
           <Typography
-            variant='body1' // Precio con tamaño reducido
+            variant='body2'
             color='text.secondary'
-            sx={{ marginBottom: 0.5 }}
+            sx={{ marginBottom: 0.5, fontSize: '0.8rem' }}
           >
             ${formatPrice(item.price || 0)}
           </Typography>
@@ -101,11 +100,12 @@ const ProductCard = ({ item }) => {
         sx={{
           position: 'absolute',
           bottom: 5,
+          // marginTop: '40px',
           right: 5,
-          backgroundColor: hovered ? 'rgba(255, 255, 255, 0.7)' : 'transparent',
+          backgroundColor: 'transparent',
         }}
       >
-        <ShoppingCartIcon />
+        <ShoppingCartIcon sx={{ fontSize: '1.2rem' }} />
       </IconButton>
     </Card>
   );
