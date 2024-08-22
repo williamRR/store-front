@@ -4,7 +4,6 @@ import { useStoreConfig } from '../context/StoreConfigContext';
 const Sidebar = ({ setFilters, availableTags, availableBrands, filters }) => {
   const { categories } = useStoreConfig();
 
-  // Función para convertir el texto a Title Case
   const toTitleCase = (str) => {
     return str
       .toLowerCase()
@@ -40,35 +39,35 @@ const Sidebar = ({ setFilters, availableTags, availableBrands, filters }) => {
     <Box
       sx={{
         width: '240px',
-        position: 'absolute',
-        // height: '100vh',
+        position: 'fixed',
         overflowY: 'auto',
         backgroundColor: '#f7f7f7',
-        padding: '1rem',
+        padding: '8px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
       }}
     >
-      <Typography variant='h6' gutterBottom>
+      <Typography variant='h6' gutterBottom sx={{ fontSize: '1rem' }}>
         Categorías
       </Typography>
       <Box>
         {categories.map((category) => (
           <Typography
             key={category._id}
-            variant='body2' // Reducir el tamaño del texto para hacerlo más compacto
+            variant='body2'
             gutterBottom
             sx={
               category._id === filters.category
                 ? {
                     fontWeight: 'bold',
                     backgroundColor: 'primary.light',
-                    padding: '0.5rem',
+                    padding: '0.3rem 0.5rem',
                     color: 'white',
                     borderRadius: '5px',
                   }
                 : {
                     cursor: 'pointer',
                     backgroundColor: 'silver',
-                    padding: '0.5rem',
+                    padding: '0.3rem 0.5rem',
                     borderRadius: '5px',
                     '&:hover': {
                       color: 'secondary.main',
@@ -85,10 +84,10 @@ const Sidebar = ({ setFilters, availableTags, availableBrands, filters }) => {
 
       <Divider sx={{ my: 2 }} />
 
-      <Typography variant='h6' gutterBottom>
+      <Typography variant='h6' gutterBottom sx={{ fontSize: '1rem' }}>
         Nuestras Marcas
       </Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
         {availableBrands
           .filter((brand) => brand._id !== selectedBrandId)
           .map((brand) => (
@@ -96,10 +95,10 @@ const Sidebar = ({ setFilters, availableTags, availableBrands, filters }) => {
               sx={{
                 borderRadius: '0px',
                 textTransform: 'capitalize',
-                fontSize: '0.875rem',
+                fontSize: '0.75rem',
               }}
               key={brand._id}
-              label={toTitleCase(brand.name)} // Aplicar Title Case
+              label={toTitleCase(brand.name)}
               variant='outlined'
               onClick={() => handleBrandClick(brand)}
               clickable
@@ -109,20 +108,20 @@ const Sidebar = ({ setFilters, availableTags, availableBrands, filters }) => {
 
       <Divider sx={{ my: 2 }} />
 
-      <Typography variant='h6' gutterBottom>
+      <Typography variant='h6' gutterBottom sx={{ fontSize: '1rem' }}>
         Filtros rápidos
       </Typography>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
         {availableTags
           .filter((tag) => !selectedTagIds.includes(tag._id))
           .map((tag) => (
             <Chip
               sx={{
                 textTransform: 'capitalize',
-                fontSize: '0.875rem',
+                fontSize: '0.75rem',
               }}
               key={tag._id}
-              label={toTitleCase(tag.name)} // Aplicar Title Case
+              label={toTitleCase(tag.name)}
               variant='outlined'
               onClick={() => handleTagClick(tag)}
               clickable

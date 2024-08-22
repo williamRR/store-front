@@ -22,16 +22,13 @@ import { useLocation } from 'react-router-dom';
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [availableTags, setAvailableTags] = useState([]);
-  const [availableBrands, setAvailableBrands] = useState([]); //
-  const [grouping, setGrouping] = useState('grouped'); // Default to grouped
+  const [availableBrands, setAvailableBrands] = useState([]);
+  const [grouping, setGrouping] = useState('grouped');
   const {
     category: { _id: categoryId },
-  } = useLocation().state || {}; // Get category from location state
-  const handleGroupingChange = (event) => {
-    setGrouping(event.target.value);
-  };
+  } = useLocation().state || {};
 
   useEffect(() => {
     if (categoryId) {
@@ -43,18 +40,19 @@ const ProductsPage = () => {
       });
     }
   }, [categoryId]);
+
   const [pagination, setPagination] = useState({
     page: 1,
     totalPages: 1,
-    limit: 25, // Número de productos por página
-    sort: 'name', // Campo por el cual ordenar
-    order: 'asc', // Orden ascendente o descendente
+    limit: 25,
+    sort: 'name',
+    order: 'asc',
   });
 
   const [filters, setFilters] = useState({
     category: null,
     tags: [],
-    brand: null, // New filter for brands
+    brand: null,
     query: '',
   });
 
@@ -99,7 +97,7 @@ const ProductsPage = () => {
           limit: pagination.limit,
           sort: pagination.sort,
           order: pagination.order,
-          grouping, // Add grouping to the request body
+          grouping,
         });
         const { data } = res;
         setAvailableTags(data.availableFilters.tags);
@@ -123,7 +121,7 @@ const ProductsPage = () => {
     pagination.limit,
     pagination.sort,
     pagination.order,
-    grouping, // Add grouping as a dependency
+    grouping,
   ]);
 
   const handlePageChange = (event, value) => {
@@ -163,9 +161,7 @@ const ProductsPage = () => {
       <main
         style={{
           marginLeft: '240px',
-          padding: '20px',
-          // flexGrow: 1,
-          // marginTop: '70px',
+          padding: '16px',
           maxWidth: '70vw',
         }}
       >
@@ -174,12 +170,11 @@ const ProductsPage = () => {
           justifyContent='space-between'
           alignItems='center'
           sx={{
-            position: 'absolute',
             backgroundColor: 'white',
-            border: '1px solid #ccc',
-            width: '60vw', // Ajusta según sea necesario
+            width: '60vw',
             zIndex: 1,
-            padding: '8px', // Agrega padding para mejorar el aspecto
+            padding: '6px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
           }}
           mb={2}
         >
@@ -188,26 +183,27 @@ const ProductsPage = () => {
             label='Buscar'
             variant='outlined'
             onChange={handleSearchChange}
-            sx={{ flexShrink: 1, minWidth: '150px', marginRight: '8px' }} // Fija un ancho mínimo y márgenes
+            sx={{ flexShrink: 1, minWidth: '150px', marginRight: '8px' }}
           />
 
           <FormControl
             variant='outlined'
             size='small'
-            sx={{ minWidth: 120, marginRight: '8px', flexShrink: 1 }}
+            sx={{ minWidth: 100, marginRight: '8px', flexShrink: 1 }}
           >
-            <InputLabel id='limit-select-label'>Página</InputLabel>
+            <InputLabel id='limit-select-label'>Items</InputLabel>
             <Select
               labelId='limit-select-label'
               value={pagination.limit}
               onChange={(event) => handleLimitChange(event.target.value)}
-              label='Items per page'
+              label='Items'
             >
               <MenuItem value={25}>25</MenuItem>
               <MenuItem value={50}>50</MenuItem>
               <MenuItem value={100}>100</MenuItem>
             </Select>
           </FormControl>
+
           <RadioGroup
             row
             value={grouping}
@@ -216,26 +212,27 @@ const ProductsPage = () => {
           >
             <FormControlLabel
               value='grouped'
-              control={<Radio />}
+              control={<Radio size='small' />}
               label='Agrupados'
             />
             <FormControlLabel
               value='ungrouped'
-              control={<Radio />}
+              control={<Radio size='small' />}
               label='Desagrupados'
             />
           </RadioGroup>
+
           <FormControl
             variant='outlined'
             size='small'
-            sx={{ minWidth: 120, marginRight: '8px', flexShrink: 1 }}
+            sx={{ minWidth: 100, marginRight: '8px', flexShrink: 1 }}
           >
-            <InputLabel id='sort-select-label'>Criterio</InputLabel>
+            <InputLabel id='sort-select-label'>Ordenar por</InputLabel>
             <Select
               labelId='sort-select-label'
               value={pagination.sort}
               onChange={(event) => handleSortChange(event.target.value)}
-              label='Criterio'
+              label='Ordenar por'
             >
               <MenuItem value='name'>Nombre</MenuItem>
               <MenuItem value='price'>Precio</MenuItem>
@@ -247,28 +244,20 @@ const ProductsPage = () => {
           <FormControl
             variant='outlined'
             size='small'
-            sx={{ minWidth: 120, marginRight: '8px', flexShrink: 1 }}
+            sx={{ minWidth: 100, marginRight: '8px', flexShrink: 1 }}
           >
             <InputLabel id='order-select-label'>Orden</InputLabel>
             <Select
               labelId='order-select-label'
               value={pagination.order}
               onChange={(event) => handleOrderChange(event.target.value)}
-              label='Order'
+              label='Orden'
             >
               <MenuItem value='asc'>Ascendente</MenuItem>
               <MenuItem value='desc'>Descendente</MenuItem>
             </Select>
           </FormControl>
 
-          {/* <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'center',
-            maxWidth: '300px', // Ancho fijo para la paginación
-            flexShrink: 0,
-          }}
-        > */}
           <Pagination
             count={pagination.totalPages}
             page={pagination.page}
@@ -297,14 +286,14 @@ const ProductsPage = () => {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              width: '100%', // Ajusta el ancho según sea necesario
-              height: '80vh', // Adjust height as needed
+              width: '100%',
+              height: '60vh',
             }}
           >
-            <CircularProgress size={200} />
+            <CircularProgress size={80} />
           </Box>
         ) : (
-          <Grid container justifyContent={'flex-start'}>
+          <Grid container justifyContent={'flex-start'} spacing={2}>
             {products.map((product) => (
               <ProductCard item={product} key={product._id} />
             ))}
