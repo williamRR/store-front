@@ -30,6 +30,10 @@ const ProductsPage = () => {
     category: { _id: categoryId },
   } = useLocation().state || {};
 
+  const handleGroupingChange = (event) => {
+    setGrouping(event.target.value);
+  };
+
   useEffect(() => {
     if (categoryId) {
       setFilters({
@@ -163,6 +167,7 @@ const ProductsPage = () => {
           marginLeft: '240px',
           padding: '16px',
           maxWidth: '70vw',
+          width: '100%',
         }}
       >
         <Box
@@ -171,7 +176,8 @@ const ProductsPage = () => {
           alignItems='center'
           sx={{
             backgroundColor: 'white',
-            width: '60vw',
+            // minWidth: '60vw',
+            width: '100%',
             zIndex: 1,
             padding: '6px',
             boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
@@ -257,19 +263,18 @@ const ProductsPage = () => {
               <MenuItem value='desc'>Descendente</MenuItem>
             </Select>
           </FormControl>
-
-          <Pagination
-            count={pagination.totalPages}
-            page={pagination.page}
-            variant='outlined'
-            size='small'
-            siblingCount={1}
-            boundaryCount={1}
-            showLastButton
-            onChange={handlePageChange}
-            color='secondary'
-          />
         </Box>
+        <Pagination
+          count={pagination.totalPages}
+          page={pagination.page}
+          variant='outlined'
+          size='small'
+          siblingCount={1}
+          boundaryCount={1}
+          showLastButton
+          onChange={handlePageChange}
+          color='secondary'
+        />
 
         <TagsBanner
           filters={filters.tags.concat(filters.brand || [])}
