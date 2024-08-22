@@ -164,7 +164,7 @@ const ProductsPage = () => {
       />
       <main
         style={{
-          marginLeft: '240px',
+          marginLeft: '20px',
           padding: '16px',
           maxWidth: '70vw',
           width: '100%',
