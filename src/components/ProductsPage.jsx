@@ -161,6 +161,7 @@ const ProductsPage = () => {
         availableTags={availableTags}
         availableBrands={availableBrands}
         filters={filters}
+        setPagination={setPagination}
       />
       <main
         style={{

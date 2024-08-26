@@ -1,7 +1,13 @@
 import { Box, Typography, Divider, Chip } from '@mui/material';
 import { useStoreConfig } from '../context/StoreConfigContext';
 
-const Sidebar = ({ setFilters, availableTags, availableBrands, filters }) => {
+const Sidebar = ({
+  setFilters,
+  availableTags,
+  availableBrands,
+  filters,
+  setPagination,
+}) => {
   const { categories } = useStoreConfig();
 
   const toTitleCase = (str) => {
@@ -19,6 +25,7 @@ const Sidebar = ({ setFilters, availableTags, availableBrands, filters }) => {
       brand: null,
       query: '',
     });
+    setPagination((prevPagination) => ({ ...prevPagination, page: 1 }));
   };
 
   const handleTagClick = (tag) => {
@@ -26,10 +33,12 @@ const Sidebar = ({ setFilters, availableTags, availableBrands, filters }) => {
       const tags = [...prevFilters.tags, tag];
       return { ...prevFilters, tags };
     });
+    setPagination((prevPagination) => ({ ...prevPagination, page: 1 }));
   };
 
   const handleBrandClick = (brand) => {
     setFilters((prevFilters) => ({ ...prevFilters, brand }));
+    setPagination((prevPagination) => ({ ...prevPagination, page: 1 }));
   };
 
   const selectedTagIds = filters.tags.map((tag) => tag._id);
