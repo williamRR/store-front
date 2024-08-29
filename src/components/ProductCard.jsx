@@ -70,7 +70,7 @@ const ProductCard = ({ item }) => {
             width: '100%',
             height: 120,
             objectFit: 'contain',
-            backgroundColor: '#f0f0f0',
+            backgroundColor: '#fff',
           }}
         />
         <CardContent sx={{ textAlign: 'center', padding: 0.5 }}>

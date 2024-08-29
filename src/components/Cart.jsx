@@ -113,7 +113,7 @@ const Cart = () => {
       <Dialog
         open={pdfModalOpen}
         onClose={() => setPdfModalOpen(false)}
-        maxWidth='lg'
+        // maxWidth='xs'
         fullWidth
       >
         <DialogTitle>Boleta Generada</DialogTitle>
