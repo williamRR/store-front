@@ -18,7 +18,6 @@ import {
 } from '@mui/material';
 import { useCart } from '../context/CartContext';
 import { useState } from 'react';
-import { useStoreConfig } from '../context/StoreConfigContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
@@ -27,9 +26,11 @@ const Cart = () => {
     state: { isOpen, cart, totalAmount },
     dispatch,
   } = useCart();
-  const { storeId } = useStoreConfig();
+
   const [paymentMethod, setPaymentMethod] = useState('');
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [receipt, setReceipt] = useState(null);
+  const [pdfModalOpen, setPdfModalOpen] = useState(false);
 
   const handleOpenPaymentDialog = () => {
     setPaymentDialogOpen(true);
@@ -55,19 +56,30 @@ const Cart = () => {
   const handlePaymentMethodChange = (event) => {
     setPaymentMethod(event.target.value);
   };
+
   const handleProceedToCheckout = async () => {
-    const products = cart.map((item) => ({
-      product: item._id,
+    const details = cart.map((item) => ({
+      comment: item.name,
+      netUnitValue: item.price,
       quantity: item.quantity,
-      price: item.price,
-      entity: item.variants ? 'products' : 'variants',
+      taxId: '[1]',
+      product: item._id,
     }));
+
     const body = {
-      products,
-      total: totalAmount,
-      paymentMethod,
-      date: new Date(),
+      documentTypeId: 10,
+      emissionDate: Math.floor(new Date().getTime() / 1000),
+      expirationDate: Math.floor(new Date().getTime() / 1000),
+      declareSii: 1,
+      details: details,
+      payments: [
+        {
+          paymentTypeId: paymentMethod === 'efectivo' ? 1 : 2,
+          amount: totalAmount,
+        },
+      ],
     };
+
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/stores/${
@@ -78,12 +90,12 @@ const Cart = () => {
       dispatch({ type: 'CLEAR_CART' });
       setPaymentDialogOpen(false);
       dispatch({ type: 'TOGGLE_CART' });
-      console.log(response);
+      setReceipt(response.data); // Guardar la boleta en el estado
+      setPdfModalOpen(true); // Abrir el modal con el PDF
       toast.success(`Compra realizada con éxito: ${response.data._id}`);
     } catch (error) {
       console.error('Error al procesar la compra:', error);
 
-      // Mostrar el mensaje de error específico que viene del backend
       if (error.response && error.response.data && error.response.data.error) {
         toast.error(`Error: ${error.response.data.error}`);
       } else {
@@ -98,6 +110,31 @@ const Cart = () => {
 
   return (
     <>
+      <Dialog
+        open={pdfModalOpen}
+        onClose={() => setPdfModalOpen(false)}
+        maxWidth='lg'
+        fullWidth
+      >
+        <DialogTitle>Boleta Generada</DialogTitle>
+        <DialogContent>
+          {receipt && (
+            <iframe
+              src={receipt.urlPdf}
+              title='Boleta PDF'
+              width='100%'
+              height='600px'
+              style={{ border: 'none' }}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPdfModalOpen(false)} color='primary'>
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Dialog open={paymentDialogOpen} onClose={handleClosePaymentDialog}>
         <DialogTitle>Seleccione el método de pago</DialogTitle>
         <DialogContent>
