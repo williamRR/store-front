@@ -19,6 +19,7 @@ import axios from 'axios';
 import ProductCard from './ProductCard';
 import TagsBanner from './TagsBanner';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext'; // Ajustar la ruta si es necesario
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -33,17 +34,6 @@ const ProductsPage = () => {
   const handleGroupingChange = (event) => {
     setGrouping(event.target.value);
   };
-
-  useEffect(() => {
-    if (categoryId) {
-      setFilters({
-        category: categoryId,
-        tags: [],
-        brand: null,
-        query: '',
-      });
-    }
-  }, [categoryId]);
 
   const [pagination, setPagination] = useState({
     page: 1,
@@ -88,6 +78,20 @@ const ProductsPage = () => {
     }));
   };
 
+  // 1. useEffect para actualizar los filtros cuando cambia categoryId
+  useEffect(() => {
+    if (categoryId) {
+      setFilters((prevFilters) => ({
+        ...prevFilters,
+        category: categoryId,
+        tags: [],
+        brand: null,
+        query: '',
+      }));
+    }
+  }, [categoryId]);
+
+  // 2. useEffect para obtener los productos cuando cambian los filtros o la paginación
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -118,7 +122,14 @@ const ProductsPage = () => {
       }
     };
 
-    fetchProducts();
+    if (
+      filters.category ||
+      filters.tags.length > 0 ||
+      filters.brand ||
+      filters.query !== ''
+    ) {
+      fetchProducts();
+    }
   }, [
     filters,
     pagination.page,
@@ -153,7 +164,6 @@ const ProductsPage = () => {
   const removeBrand = () => {
     setFilters((prevFilters) => ({ ...prevFilters, brand: null }));
   };
-
   return (
     <div style={{ display: 'flex', width: '90vw', marginLeft: '5vw' }}>
       <Sidebar

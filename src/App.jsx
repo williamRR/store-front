@@ -8,6 +8,7 @@ import {
   useStoreConfig,
 } from './context/StoreConfigContext';
 import ProductsPage from './components/ProductsPage';
+import Login from './pages/Login';
 
 function AppContent() {
   const { loading } = useStoreConfig();
@@ -40,6 +41,7 @@ function AppContent() {
             </>
           }
         />
+        <Route path='/login' element={<Login />} />
         <Route path='/products' element={<ProductsPage />} />
       </Routes>
     </>

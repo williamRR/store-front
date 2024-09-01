@@ -25,30 +25,27 @@ const StoreHeader = () => {
     images: { smallLogo },
     theme,
   } = useStoreConfig();
-  const { isAuthenticated, userData } = useAuth();
-  const {
-    state: { cart, totalAmount, isOpen },
-    dispatch,
-  } = useCart();
+  const { isAuthenticated, logout } = useAuth();
+  const { dispatch } = useCart();
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const [paymentMethod, setPaymentMethod] = useState('');
-  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  // const [paymentMethod, setPaymentMethod] = useState('');
+  // const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
 
   const handleClose = () => {
     setAnchorEl(null);
   };
 
-  const handleOpenPaymentDialog = () => {
-    setPaymentDialogOpen(true);
-  };
+  // const handleOpenPaymentDialog = () => {
+  //   setPaymentDialogOpen(true);
+  // };
 
-  const handleClosePaymentDialog = () => {
-    setPaymentDialogOpen(false);
-  };
+  // const handleClosePaymentDialog = () => {
+  //   setPaymentDialogOpen(false);
+  // };
 
   const handleLogoClick = () => {
     navigate('/');
@@ -60,6 +57,7 @@ const StoreHeader = () => {
   };
 
   const handleLogout = () => {
+    logout();
     navigate('/');
     handleClose();
   };

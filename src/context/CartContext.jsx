@@ -50,7 +50,6 @@ const cartReducer = (state, action) => {
 
     // En el reducer:
     case 'UPDATE_QUANTITY': {
-      console.log('UPDATE_QUANTITY', action.payload);
       const existingItemIndex = state.cart.findIndex(
         (item) => item._id === action.payload._id,
       );

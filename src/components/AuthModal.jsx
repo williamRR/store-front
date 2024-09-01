@@ -18,9 +18,10 @@ const AuthModal = ({ open, handleClose }) => {
     try {
       if (view === 'login') {
         const resp = await login(data);
+
         if (resp.success) {
           handleClose();
-          toast.success(resp.message);
+          // toast.success(resp.message);
         } else {
           toast.error(resp.message);
         }
