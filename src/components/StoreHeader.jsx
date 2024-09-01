@@ -29,23 +29,16 @@ const StoreHeader = () => {
   const { dispatch } = useCart();
 
   const handleMenu = (event) => {
-    setAnchorEl(event.currentTarget);
+    if (isAuthenticated) {
+      setAnchorEl(event.currentTarget);
+    } else {
+      setAuthOpen(true);
+    }
   };
-
-  // const [paymentMethod, setPaymentMethod] = useState('');
-  // const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
 
   const handleClose = () => {
     setAnchorEl(null);
   };
-
-  // const handleOpenPaymentDialog = () => {
-  //   setPaymentDialogOpen(true);
-  // };
-
-  // const handleClosePaymentDialog = () => {
-  //   setPaymentDialogOpen(false);
-  // };
 
   const handleLogoClick = () => {
     navigate('/');
@@ -62,7 +55,12 @@ const StoreHeader = () => {
     handleClose();
   };
 
-  const toggleCartDrawer = (open) => {
+  const handleProfile = () => {
+    navigate('/profile'); // Redirige a la página de perfil
+    handleClose();
+  };
+
+  const toggleCartDrawer = () => {
     dispatch({ type: 'TOGGLE_CART' });
   };
 
@@ -127,28 +125,26 @@ const StoreHeader = () => {
               >
                 <AccountCircle />
               </IconButton>
-              <Menu
-                id='menu-appbar'
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
-                }}
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-              >
-                {!isAuthenticated && (
-                  <MenuItem onClick={handleLogin}>Iniciar Sesión</MenuItem>
-                )}
-                {isAuthenticated && (
+              {isAuthenticated && (
+                <Menu
+                  id='menu-appbar'
+                  anchorEl={anchorEl}
+                  anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  open={Boolean(anchorEl)}
+                  onClose={handleClose}
+                >
+                  <MenuItem onClick={handleProfile}>Mi Perfil</MenuItem>
                   <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
-                )}
-              </Menu>
+                </Menu>
+              )}
             </Grid>
           </Grid>
         </Toolbar>

@@ -75,6 +75,7 @@ const Cart = () => {
     const details = cart.map((item) => ({
       comment: item.name,
       netUnitValue: item.price / 1.19,
+      price: item.price,
       quantity: item.quantity,
       taxId: '[1]',
       product: item._id,
