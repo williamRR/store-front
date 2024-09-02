@@ -218,7 +218,6 @@ const ProductsPage = () => {
           </Grid>
 
           <Grid item xs={'auto'}>
-            {' '}
             <FormControl variant='outlined' size='small'>
               <InputLabel id='limit-select-label'>Items</InputLabel>
               <Select
@@ -235,7 +234,7 @@ const ProductsPage = () => {
           </Grid>
 
           <Grid item xs={'auto'}>
-            <RadioGroup column value={grouping} onChange={handleGroupingChange}>
+            <RadioGroup row value={grouping} onChange={handleGroupingChange}>
               <FormControlLabel
                 value='grouped'
                 control={<Radio size='small' />}

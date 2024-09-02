@@ -42,7 +42,7 @@ const ProductCard = ({ item }) => {
   return (
     <Card
       sx={{
-        width: { xs: '45%', sm: '28%', md: '15%' }, // Ajusta el ancho dependiendo del tamaño de la pantalla
+        width: { xs: '45%', sm: '26%', md: '15%' }, // Ajusta el ancho dependiendo del tamaño de la pantalla
         // maxWidth: 180, // Ancho máximo reducido
         // minWidth: 180, // Ancho mínimo reducido
         margin: 1,
