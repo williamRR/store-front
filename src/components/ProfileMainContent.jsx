@@ -54,12 +54,12 @@ const ProfileMainContent = () => {
 
           // Comisión diaria
           if (saleDate.toISOString().slice(0, 10) === today) {
-            commissionToday += Math.floor(saleTotal * 0.03);
+            commissionToday += Math.floor(saleTotal * 0.05);
           }
 
           // Comisión mensual
           if (saleDate.getMonth() === currentMonth) {
-            commissionThisMonth += Math.floor(saleTotal * 0.03);
+            commissionThisMonth += Math.floor(saleTotal * 0.05);
           }
         });
 
@@ -93,7 +93,7 @@ const ProfileMainContent = () => {
   }, [user]);
 
   const calculateCommission = (totalAmount) => {
-    return Math.floor(totalAmount * 0.03).toLocaleString('es-CL');
+    return Math.floor(totalAmount * 0.05).toLocaleString('es-CL');
   };
 
   return (
