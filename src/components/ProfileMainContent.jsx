@@ -30,6 +30,12 @@ const ProfileMainContent = () => {
     totalRevenueThisMonth: 0,
     commissionThisMonth: 0,
   });
+  const [paymentMethodCounts, setPaymentMethodCounts] = useState({
+    cash: { count: 0, totalAmount: 0 },
+    'credit card': { count: 0, totalAmount: 0 },
+    'debit card': { count: 0, totalAmount: 0 },
+    paypal: { count: 0, totalAmount: 0 },
+  });
 
   useEffect(() => {
     const fetchSales = async () => {
@@ -39,8 +45,11 @@ const ProfileMainContent = () => {
             import.meta.env.VITE_STORE_ID
           }/sales?seller=${user.userId}`,
         );
-        const salesData = response.data.sales;
 
+        const { sales: salesData, paymentMethodCounts: pmCounts } =
+          response.data.sales;
+        console.log(response.data);
+        console.log(salesData);
         // Calcular la comisión de hoy y de este mes
         const today = new Date().toISOString().slice(0, 10);
         const currentMonth = new Date().getMonth();
@@ -69,6 +78,7 @@ const ProfileMainContent = () => {
           commissionToday,
           commissionThisMonth,
         }));
+        setPaymentMethodCounts(pmCounts);
       } catch (error) {
         console.error('Error fetching sales:', error);
       }
@@ -134,6 +144,48 @@ const ProfileMainContent = () => {
             </CardContent>
           </Card>
         </Grid>
+
+        {/* New section for payment method counts */}
+        <Grid item xs={12}>
+          <Card sx={{ mt: 2 }}>
+            <CardContent>
+              <Typography variant='h6'>Ventas por Método de Pago</Typography>
+              <TableContainer component={Paper} sx={{ mt: 2 }}>
+                <Table size='small'>
+                  <TableHead sx={{ bgcolor: 'primary.light' }}>
+                    <TableRow>
+                      <TableCell sx={{ color: 'primary.contrastText' }}>
+                        Método de Pago
+                      </TableCell>
+                      <TableCell sx={{ color: 'primary.contrastText' }}>
+                        Cantidad de Ventas
+                      </TableCell>
+                      <TableCell sx={{ color: 'primary.contrastText' }}>
+                        Total Recaudado
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {Object.keys(paymentMethodCounts).map((method) => (
+                      <TableRow key={method}>
+                        <TableCell>{method}</TableCell>
+                        <TableCell>
+                          {paymentMethodCounts[method].count}
+                        </TableCell>
+                        <TableCell>
+                          $
+                          {paymentMethodCounts[
+                            method
+                          ].totalAmount.toLocaleString('es-CL')}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
 
       <Box sx={{ mt: 4 }}>
@@ -149,6 +201,9 @@ const ProfileMainContent = () => {
                 </TableCell>
                 <TableCell sx={{ color: 'primary.contrastText' }}>
                   Total
+                </TableCell>
+                <TableCell sx={{ color: 'primary.contrastText' }}>
+                  Medio de pago
                 </TableCell>
                 <TableCell sx={{ color: 'primary.contrastText' }}>
                   Comisión
@@ -168,6 +223,12 @@ const ProfileMainContent = () => {
                     })}
                   </TableCell>
                   <TableCell>{sale.total}</TableCell>
+                  <TableCell>
+                    {sale.paymentMethod === 'credit card' ||
+                    sale.paymentMethod === 'debit card'
+                      ? 'Transbank'
+                      : 'Efectivo'}
+                  </TableCell>
                   <TableCell>
                     ${calculateCommission(sale.totalAmount)}
                   </TableCell>

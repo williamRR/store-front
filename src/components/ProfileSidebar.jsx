@@ -12,8 +12,9 @@ import LockIcon from '@mui/icons-material/Lock';
 import HistoryIcon from '@mui/icons-material/History';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import HomeIcon from '@mui/icons-material/Home';
 import SettingsIcon from '@mui/icons-material/Settings';
-import InventoryIcon from '@mui/icons-material/Inventory';
+
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import LogoutIcon from '@mui/icons-material/Logout';
 
@@ -32,6 +33,13 @@ const ProfileSidebar = () => {
       }}
     >
       <List>
+        <ListItem button onClick={() => navigate('/profile')}>
+          <ListItemIcon sx={{}}>
+            <HomeIcon />
+          </ListItemIcon>
+          <ListItemText primary='Inicio' />
+        </ListItem>
+
         <ListItem button onClick={() => navigate('/products')}>
           <ListItemIcon sx={{}}>
             <StorefrontIcon />
@@ -41,7 +49,7 @@ const ProfileSidebar = () => {
 
         <ListItem button onClick={() => navigate('/profile')}>
           <ListItemIcon sx={{}}>
-            <LockIcon />
+            <SettingsIcon />
           </ListItemIcon>
           <ListItemText primary='Cambiar mis Datos' />
         </ListItem>
