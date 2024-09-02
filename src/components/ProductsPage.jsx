@@ -29,9 +29,9 @@ const ProductsPage = () => {
   const [availableTags, setAvailableTags] = useState([]);
   const [availableBrands, setAvailableBrands] = useState([]);
   const [grouping, setGrouping] = useState('grouped');
-  const {
-    category: { _id: categoryId },
-  } = useLocation().state || {};
+
+  const locationState = useLocation().state || {};
+  const { category: { _id: categoryId = 'all' } = {} } = locationState;
 
   const handleGroupingChange = (event) => {
     setGrouping(event.target.value);
