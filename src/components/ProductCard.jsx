@@ -42,15 +42,14 @@ const ProductCard = ({ item }) => {
   return (
     <Card
       sx={{
-        width: { xs: '100%', sm: '48%', md: '30%', lg: '20%' }, // Ajusta el ancho dependiendo del tamaño de la pantalla
-        maxWidth: 180, // Ancho máximo reducido
-        minWidth: 180, // Ancho mínimo reducido
+        width: { xs: '45%', sm: '28%', md: '15%' }, // Ajusta el ancho dependiendo del tamaño de la pantalla
+        // maxWidth: 180, // Ancho máximo reducido
+        // minWidth: 180, // Ancho mínimo reducido
         margin: 1,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
         borderRadius: 2,
-        backgroundColor: 'white',
         position: 'relative',
         transition:
           'transform 0.3s ease-in-out, background-color 0.3s ease-in-out',

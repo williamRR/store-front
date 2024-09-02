@@ -75,8 +75,8 @@ const StoreHeader = () => {
       >
         <Toolbar
           sx={{
-            width: '90vw',
-            marginLeft: '5vw',
+            width: '80vw',
+            marginLeft: '10vw',
           }}
         >
           <Grid
@@ -86,7 +86,6 @@ const StoreHeader = () => {
           >
             <Typography
               variant='h6'
-              component='div'
               onClick={handleLogoClick}
               sx={{ cursor: 'pointer' }}
             >
@@ -101,16 +100,23 @@ const StoreHeader = () => {
                 }}
               />
             </Typography>
+            {/* <Grid
+            item
+            xs={6}
+            sx={{
+              width: '100%',
+            }}
+          /> */}
             <Grid
               item
-              xs={6}
-              sx={{
-                width: '100%',
-              }}
-            />
-            <Grid item container xs={1} sx={{ justifyContent: 'space-around' }}>
+              container
+              xs={1}
+              sm={2}
+              lg={1}
+              sx={{ justifyContent: 'space-around' }}
+            >
               <IconButton
-                size='large'
+                size='small'
                 aria-label='cart'
                 color='inherit'
                 onClick={toggleCartDrawer}
@@ -118,7 +124,7 @@ const StoreHeader = () => {
                 <ShoppingCart />
               </IconButton>
               <IconButton
-                size='large'
+                size='small'
                 aria-label='account of current user'
                 onClick={handleMenu}
                 color='inherit'
@@ -131,7 +137,7 @@ const StoreHeader = () => {
                   anchorEl={anchorEl}
                   anchorOrigin={{
                     vertical: 'top',
-                    horizontal: 'right',
+                    horizontal: 'left',
                   }}
                   keepMounted
                   transformOrigin={{

@@ -1,4 +1,4 @@
-import { Box, Typography, Divider, Chip } from '@mui/material';
+import { Box, Typography, Divider, Chip, Grid } from '@mui/material';
 import { useStoreConfig } from '../context/StoreConfigContext';
 
 const Sidebar = ({
@@ -45,51 +45,48 @@ const Sidebar = ({
   const selectedBrandId = filters.brand ? filters.brand._id : null;
 
   return (
-    <Box
+    <Grid
+      container
+      direction={'column'}
       sx={{
-        width: '240px',
-        // position: 'fixed',
-        overflowY: 'auto',
-        backgroundColor: '#f7f7f7',
-        padding: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        backgroundColor: 'third.main',
+        paddingLeft: '1rem',
+        paddingRight: '1rem',
       }}
     >
       <Typography variant='h6' gutterBottom sx={{ fontSize: '1rem' }}>
         Categorías
       </Typography>
-      <Box>
-        {categories.map((category) => (
-          <Typography
-            key={category._id}
-            variant='body2'
-            gutterBottom
-            sx={
-              category._id === filters.category
-                ? {
-                    fontWeight: 'bold',
+      {categories.map((category) => (
+        <Typography
+          key={category._id}
+          variant='body2'
+          gutterBottom
+          sx={
+            category._id === filters.category
+              ? {
+                  fontWeight: 'bold',
+                  backgroundColor: 'primary.light',
+                  padding: '0.3rem 0.5rem',
+                  color: 'white',
+                  borderRadius: '5px',
+                }
+              : {
+                  cursor: 'pointer',
+                  backgroundColor: 'silver',
+                  padding: '0.3rem 0.5rem',
+                  borderRadius: '5px',
+                  '&:hover': {
+                    color: 'secondary.main',
                     backgroundColor: 'primary.light',
-                    padding: '0.3rem 0.5rem',
-                    color: 'white',
-                    borderRadius: '5px',
-                  }
-                : {
-                    cursor: 'pointer',
-                    backgroundColor: 'silver',
-                    padding: '0.3rem 0.5rem',
-                    borderRadius: '5px',
-                    '&:hover': {
-                      color: 'secondary.main',
-                      backgroundColor: 'primary.light',
-                    },
-                  }
-            }
-            onClick={() => handleCategoryClick(category._id)}
-          >
-            {toTitleCase(category.name)}
-          </Typography>
-        ))}
-      </Box>
+                  },
+                }
+          }
+          onClick={() => handleCategoryClick(category._id)}
+        >
+          {toTitleCase(category.name)}
+        </Typography>
+      ))}
 
       <Divider sx={{ my: 2 }} />
 
@@ -137,7 +134,7 @@ const Sidebar = ({
             />
           ))}
       </Box>
-    </Box>
+    </Grid>
   );
 };
 

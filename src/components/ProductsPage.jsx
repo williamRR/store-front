@@ -6,6 +6,7 @@ import {
   FormControl,
   FormControlLabel,
   Grid,
+  IconButton,
   InputLabel,
   MenuItem,
   Pagination,
@@ -20,7 +21,8 @@ import ProductCard from './ProductCard';
 import TagsBanner from './TagsBanner';
 import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // Ajustar la ruta si es necesario
-
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -71,7 +73,8 @@ const ProductsPage = () => {
     }));
   };
 
-  const handleOrderChange = (newOrder) => {
+  const handleToggleOrder = () => {
+    const newOrder = pagination.order === 'asc' ? 'desc' : 'asc';
     setPagination((prevPagination) => ({
       ...prevPagination,
       order: newOrder,
@@ -164,160 +167,191 @@ const ProductsPage = () => {
   const removeBrand = () => {
     setFilters((prevFilters) => ({ ...prevFilters, brand: null }));
   };
+
   return (
-    <div style={{ display: 'flex', width: '90vw', marginLeft: '5vw' }}>
-      <Sidebar
-        setFilters={setFilters}
-        availableTags={availableTags}
-        availableBrands={availableBrands}
-        filters={filters}
-        setPagination={setPagination}
-      />
-      <main
-        style={{
-          marginLeft: '20px',
-          padding: '16px',
-          maxWidth: '70vw',
-          width: '100%',
-        }}
-      >
-        <Box
-          display='flex'
-          justifyContent='space-between'
-          alignItems='center'
+    <>
+      <Grid container>
+        {/* Sidebar */}
+        <Grid
+          item
+          xs={3}
+          sm={4}
+          lg={2}
           sx={{
+            display: { xs: 'none', sm: 'block' },
             backgroundColor: 'white',
-            // minWidth: '60vw',
-            width: '100%',
-            zIndex: 1,
-            padding: '6px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            padding: '16px',
           }}
-          mb={2}
         >
-          <TextField
-            size='small'
-            label='Buscar'
-            variant='outlined'
-            onChange={handleSearchChange}
-            sx={{ flexShrink: 1, minWidth: '150px', marginRight: '8px' }}
+          <Sidebar
+            setFilters={setFilters}
+            availableTags={availableTags}
+            availableBrands={availableBrands}
+            filters={filters}
+            setPagination={setPagination}
           />
+        </Grid>
 
-          <FormControl
-            variant='outlined'
-            size='small'
-            sx={{ minWidth: 100, marginRight: '8px', flexShrink: 1 }}
-          >
-            <InputLabel id='limit-select-label'>Items</InputLabel>
-            <Select
-              labelId='limit-select-label'
-              value={pagination.limit}
-              onChange={(event) => handleLimitChange(event.target.value)}
-              label='Items'
-            >
-              <MenuItem value={25}>25</MenuItem>
-              <MenuItem value={50}>50</MenuItem>
-              <MenuItem value={100}>100</MenuItem>
-            </Select>
-          </FormControl>
-
-          <RadioGroup
-            row
-            value={grouping}
-            onChange={handleGroupingChange}
-            sx={{ marginRight: '8px' }}
-          >
-            <FormControlLabel
-              value='grouped'
-              control={<Radio size='small' />}
-              label='Agrupados'
-            />
-            <FormControlLabel
-              value='ungrouped'
-              control={<Radio size='small' />}
-              label='Desagrupados'
-            />
-          </RadioGroup>
-
-          <FormControl
-            variant='outlined'
-            size='small'
-            sx={{ minWidth: 100, marginRight: '8px', flexShrink: 1 }}
-          >
-            <InputLabel id='sort-select-label'>Ordenar por</InputLabel>
-            <Select
-              labelId='sort-select-label'
-              value={pagination.sort}
-              onChange={(event) => handleSortChange(event.target.value)}
-              label='Ordenar por'
-            >
-              <MenuItem value='name'>Nombre</MenuItem>
-              <MenuItem value='price'>Precio</MenuItem>
-              <MenuItem value='date'>Reciente</MenuItem>
-              <MenuItem value='popularity'>Popularidad</MenuItem>
-            </Select>
-          </FormControl>
-
-          <FormControl
-            variant='outlined'
-            size='small'
-            sx={{ minWidth: 100, marginRight: '8px', flexShrink: 1 }}
-          >
-            <InputLabel id='order-select-label'>Orden</InputLabel>
-            <Select
-              labelId='order-select-label'
-              value={pagination.order}
-              onChange={(event) => handleOrderChange(event.target.value)}
-              label='Orden'
-            >
-              <MenuItem value='asc'>Ascendente</MenuItem>
-              <MenuItem value='desc'>Descendente</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
-        <Pagination
-          count={pagination.totalPages}
-          page={pagination.page}
-          variant='outlined'
-          size='small'
-          siblingCount={1}
-          boundaryCount={1}
-          showLastButton
-          onChange={handlePageChange}
-          color='secondary'
-        />
-
-        <TagsBanner
-          filters={filters.tags.concat(filters.brand || [])}
-          removeTag={removeTag}
-          clearAllTags={() => {
-            removeBrand();
-            clearAllTags();
+        {/* Main Content */}
+        <Grid
+          xs={12}
+          sm={8}
+          lg={10}
+          container
+          spacing={2}
+          sx={{
+            padding: '16px',
+            height: '1vh',
+            scrollSnapMarginBottom: 2,
+            justifyContent: 'flex-start',
+            alignItems: 'flex-start',
+            // alignItems: 'center',
           }}
-        />
-
-        {loading ? (
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              width: '100%',
-              height: '60vh',
-            }}
-          >
-            <CircularProgress size={80} />
-          </Box>
-        ) : (
-          <Grid container justifyContent={'flex-start'} spacing={2}>
-            {products.map((product) => (
-              <ProductCard item={product} key={product._id} />
-            ))}
+        >
+          <Grid item xs={'auto'}>
+            <TextField
+              size='small'
+              label='Buscar'
+              variant='outlined'
+              onChange={handleSearchChange}
+            />
           </Grid>
-        )}
-      </main>
-    </div>
+
+          <Grid item xs={'auto'}>
+            {' '}
+            <FormControl variant='outlined' size='small'>
+              <InputLabel id='limit-select-label'>Items</InputLabel>
+              <Select
+                labelId='limit-select-label'
+                value={pagination.limit}
+                onChange={(event) => handleLimitChange(event.target.value)}
+                label='Items'
+              >
+                <MenuItem value={25}>25</MenuItem>
+                <MenuItem value={50}>50</MenuItem>
+                <MenuItem value={100}>100</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={'auto'}>
+            <RadioGroup column value={grouping} onChange={handleGroupingChange}>
+              <FormControlLabel
+                value='grouped'
+                control={<Radio size='small' />}
+                label='Agrupados'
+              />
+              <FormControlLabel
+                value='ungrouped'
+                control={<Radio size='small' />}
+                label='Desagrupados'
+              />
+            </RadioGroup>
+          </Grid>
+
+          <Grid item xs={'auto'}>
+            <FormControl variant='outlined' size='small'>
+              <InputLabel id='sort-select-label'>Ordenar por</InputLabel>
+              <Select
+                labelId='sort-select-label'
+                value={pagination.sort}
+                sx={{
+                  fullWidth: true,
+                }}
+                onChange={(event) => handleSortChange(event.target.value)}
+                label='Ordenar por'
+              >
+                <MenuItem value='name'>Nombre</MenuItem>
+                <MenuItem value='price'>Precio</MenuItem>
+                <MenuItem value='date'>Reciente</MenuItem>
+                <MenuItem value='popularity'>Popularidad</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={'auto'}>
+            <IconButton onClick={handleToggleOrder} size='small'>
+              {pagination.order === 'asc' ? (
+                <ArrowUpwardIcon />
+              ) : (
+                <ArrowDownwardIcon />
+              )}
+            </IconButton>
+          </Grid>
+          {/* <Grid
+          xs={12}
+          sm={8}
+          lg={10}
+          container
+          spacing={2}
+          sx={{
+            padding: '16px',
+            border: '1px solid pink',
+            height: '1vh',
+            marginTop: 2,
+            justifyContent: 'flex-start',
+            alignItems: 'flex-start',
+            backgroundColor: 'skyblue',
+            // alignItems: 'center',
+          }}
+        > */}
+          <Grid item xs={'auto'}>
+            <Pagination
+              count={pagination.totalPages}
+              page={pagination.page}
+              variant='outlined'
+              size='small'
+              siblingCount={1}
+              boundaryCount={1}
+              showLastButton
+              onChange={handlePageChange}
+              color='secondary'
+            />
+          </Grid>
+          <Grid item xs={'auto'}>
+            <TagsBanner
+              filters={filters.tags.concat(filters.brand || [])}
+              removeTag={removeTag}
+              clearAllTags={() => {
+                removeBrand();
+                clearAllTags();
+              }}
+            />
+          </Grid>
+
+          {loading ? (
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '100%',
+                marginTop: 20,
+                height: '0vh',
+              }}
+            >
+              <CircularProgress size={80} />
+            </Box>
+          ) : (
+            <Grid
+              container
+              spacing={2}
+              sx={{
+                marginTop: 2,
+                justifyContent: {
+                  xs: 'center', // Centrar el contenido en pantallas xs
+                  sm: 'flex-start', // Alinear al inicio en pantallas sm y mayores
+                },
+              }}
+            >
+              {products.map((product) => (
+                <ProductCard item={product} key={product._id} />
+              ))}
+            </Grid>
+          )}
+        </Grid>
+      </Grid>
+    </>
   );
 };
-
 export default ProductsPage;
