@@ -15,7 +15,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <CartProvider>
         <CssBaseline />
         <ToastContainer
-          position='top-right'
+          position='bottom-right'
           hideProgressBar={true}
           autoClose={4000}
           newestOnTop={true}

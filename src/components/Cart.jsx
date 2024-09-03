@@ -80,7 +80,13 @@ const Cart = () => {
       taxId: '[1]',
       product: item._id,
     }));
-
+    let paymentType = 1;
+    if (paymentMethod === 'transbank') {
+      paymentType = 2;
+    }
+    if (paymentMethod === 'transfer') {
+      paymentType = 3;
+    }
     const body = {
       documentTypeId: 10,
       emissionDate: Math.floor(new Date().getTime() / 1000),
@@ -89,7 +95,7 @@ const Cart = () => {
       details: details,
       payments: [
         {
-          paymentTypeId: paymentMethod === 'efectivo' ? 1 : 2,
+          paymentTypeId: paymentType,
           amount: totalAmount / 1.19,
         },
       ],
@@ -126,12 +132,8 @@ const Cart = () => {
     dispatch({ type: 'CLEAR_CART' });
   };
 
-  const handleShowLoginForm = () => {
-    setShowLoginForm(true);
-  };
-
   return (
-    console.log(cart),
+    console.log(paymentMethod),
     (
       <>
         <Dialog
@@ -177,6 +179,11 @@ const Cart = () => {
                 value='transbank'
                 control={<Radio />}
                 label='Transbank'
+              />
+              <FormControlLabel
+                value='transfer'
+                control={<Radio />}
+                label='Transferencia (16.387.103-3)'
               />
             </RadioGroup>
           </DialogContent>

@@ -54,7 +54,7 @@ const ProfileMainContent = () => {
         const today = new Date().toISOString().slice(0, 10);
         const currentMonth = new Date().getMonth();
 
-        let commissionToday = 0;
+        let commissionToday = salesData.commissionToday;
         let commissionThisMonth = 0;
 
         salesData.forEach((sale) => {
@@ -62,9 +62,9 @@ const ProfileMainContent = () => {
           const saleTotal = sale.totalAmount;
 
           // Comisión diaria
-          if (saleDate.toISOString().slice(0, 10) === today) {
-            commissionToday += Math.floor(saleTotal * 0.05);
-          }
+          // if (saleDate.toISOString().slice(0, 10) === today) {
+          //   commissionToday += Math.floor(salesToday * 0.05);
+          // }
 
           // Comisión mensual
           if (saleDate.getMonth() === currentMonth) {
@@ -75,7 +75,7 @@ const ProfileMainContent = () => {
         setSales(salesData);
         setMetrics((prevMetrics) => ({
           ...prevMetrics,
-          commissionToday,
+          // commissionToday,
           commissionThisMonth,
         }));
         setPaymentMethodCounts(pmCounts);
