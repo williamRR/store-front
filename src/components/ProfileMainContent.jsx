@@ -106,6 +106,16 @@ const ProfileMainContent = () => {
     return Math.floor(totalAmount * 0.05).toLocaleString('es-CL');
   };
 
+  const dictMethod = (method) => {
+    switch (method) {
+      case 'credit card':
+        return 'Transbank';
+      case 'cash':
+        return 'Efectivo';
+      case 'transfer':
+        return 'Transferencia';
+    }
+  };
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant='h4' gutterBottom>
@@ -168,7 +178,7 @@ const ProfileMainContent = () => {
                   <TableBody>
                     {Object.keys(paymentMethodCounts).map((method) => (
                       <TableRow key={method}>
-                        <TableCell>{method}</TableCell>
+                        <TableCell>{dictMethod(method)}</TableCell>
                         <TableCell>
                           {paymentMethodCounts[method].count}
                         </TableCell>
@@ -227,7 +237,9 @@ const ProfileMainContent = () => {
                     {sale.paymentMethod === 'credit card' ||
                     sale.paymentMethod === 'debit card'
                       ? 'Transbank'
-                      : 'Efectivo'}
+                      : sale.paymentMethod === 'cash'
+                      ? 'Efectivo'
+                      : 'Transferencia'}
                   </TableCell>
                   <TableCell>
                     ${calculateCommission(sale.totalAmount)}
