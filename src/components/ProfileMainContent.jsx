@@ -14,6 +14,7 @@ import {
   Tooltip,
   Card,
   CardContent,
+  Divider,
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useAuth } from '../context/AuthContext';
@@ -247,14 +248,24 @@ const ProfileMainContent = () => {
                   <TableCell>
                     <Tooltip
                       title={
-                        <Box>
+                        <Box
+                          sx={{
+                            padding: 2,
+                            minWidth: 250,
+                            // opacity: 1,
+                            backgroundColor: 'black',
+                          }}
+                        >
+                          {' '}
+                          {/* Ampliamos el ancho */}
                           {sale.products.map((product) => (
                             <Box
                               key={product._id}
                               sx={{
-                                mb: 1,
                                 display: 'flex',
                                 alignItems: 'center',
+                                justifyContent: 'space-between',
+                                mb: 1,
                               }}
                             >
                               <img
@@ -267,11 +278,50 @@ const ProfileMainContent = () => {
                                   borderRadius: '4px',
                                 }}
                               />
-                              <Typography variant='body2'>
-                                {product.name}
+                              <Box sx={{ flexGrow: 1 }}>
+                                <Typography
+                                  variant='body2'
+                                  sx={{ fontWeight: 'bold' }}
+                                >
+                                  {product.name}
+                                </Typography>
+                                <Typography
+                                  variant='body2'
+                                  color='text.secondary'
+                                >
+                                  Cantidad: {product.quantity} | Precio: $
+                                  {product.price}
+                                </Typography>
+                              </Box>
+                              <Typography
+                                variant='body2'
+                                sx={{ marginLeft: 'auto', fontWeight: 'bold' }}
+                              >
+                                ${product.price * product.quantity}
                               </Typography>
                             </Box>
                           ))}
+                          <Divider sx={{ my: 1 }} />
+                          {/* Total de la venta */}
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                            }}
+                          >
+                            <Typography
+                              variant='body2'
+                              sx={{ fontWeight: 'bold' }}
+                            >
+                              Total Venta:
+                            </Typography>
+                            <Typography
+                              variant='body2'
+                              sx={{ fontWeight: 'bold', color: 'green' }}
+                            >
+                              ${sale.totalAmount}
+                            </Typography>
+                          </Box>
                         </Box>
                       }
                       arrow

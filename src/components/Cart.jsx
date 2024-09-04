@@ -325,7 +325,7 @@ const Cart = () => {
             variant='subtitle1'
             sx={{ fontWeight: 'bold', color: 'green', textAlign: 'right' }} // Más estilo
           >
-            Total: {formatCurrency(totalAmount)}
+            Total: ${formatCurrency(totalAmount)}
           </Typography>{' '}
           <Button
             variant='contained'
