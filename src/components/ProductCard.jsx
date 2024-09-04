@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Card,
   CardActionArea,
@@ -10,6 +10,8 @@ import {
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useCart } from '../context/CartContext';
 import { toast } from 'react-toastify';
+import { useAuth } from '../context/AuthContext';
+
 const ProductCard = ({ item }) => {
   const [hovered, setHovered] = useState(false);
   const { dispatch } = useCart();
@@ -17,34 +19,29 @@ const ProductCard = ({ item }) => {
   const capitalize = (str) => {
     if (!str) return '';
     return str
-      .toLowerCase() // Convierte todo a minúsculas
-      .split(' ') // Divide el string en palabras
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitaliza la primera letra de cada palabra
-      .join(' '); // Une las palabras nuevamente
+      .toLowerCase()
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };
 
-  const handleMouseEnter = () => {
-    setHovered(true);
-  };
-
-  function formatPrice(price) {
+  const formatPrice = (price) => {
     const strPrice = price.toString();
-
     return strPrice.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-  }
-
-  const handleMouseLeave = () => {
-    setHovered(false);
   };
 
   const imageSrc = item.image ? item.image : 'https://via.placeholder.com/150';
 
+  const handleAddToCart = useCallback(() => {
+    console.log('Adding to cart:', item);
+    dispatch({ type: 'ADD_TO_CART', payload: item });
+    dispatch({ type: 'TOGGLE_CART' });
+  }, [item]);
+
   return (
     <Card
       sx={{
-        width: { xs: '45%', sm: '26%', md: '15%' }, // Ajusta el ancho dependiendo del tamaño de la pantalla
-        // maxWidth: 180, // Ancho máximo reducido
-        // minWidth: 180, // Ancho mínimo reducido
+        width: { xs: '45%', sm: '26%', md: '15%' },
         margin: 1,
         display: 'flex',
         flexDirection: 'column',
@@ -78,7 +75,6 @@ const ProductCard = ({ item }) => {
             variant='subtitle1'
             component='div'
             color='primary.main'
-            // noWrap
           >
             {capitalize(item.name)}
           </Typography>
@@ -92,14 +88,10 @@ const ProductCard = ({ item }) => {
         </CardContent>
       </CardActionArea>
       <IconButton
-        onClick={() => {
-          dispatch({ type: 'ADD_TO_CART', payload: item });
-          dispatch({ type: 'TOGGLE_CART' });
-        }}
+        onClick={handleAddToCart}
         sx={{
           position: 'absolute',
           bottom: 5,
-          // marginTop: '40px',
           right: 5,
           backgroundColor: 'transparent',
         }}

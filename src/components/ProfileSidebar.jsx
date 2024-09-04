@@ -1,14 +1,5 @@
-import React from 'react';
-import {
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  Drawer,
-  Box,
-} from '@mui/material';
+import { List, ListItem, ListItemIcon, ListItemText, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import LockIcon from '@mui/icons-material/Lock';
 import HistoryIcon from '@mui/icons-material/History';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import AssessmentIcon from '@mui/icons-material/Assessment';
@@ -17,8 +8,10 @@ import SettingsIcon from '@mui/icons-material/Settings';
 
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { useAuth } from '../context/AuthContext';
 
 const ProfileSidebar = () => {
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -75,7 +68,14 @@ const ProfileSidebar = () => {
           <ListItemText primary='Soporte' />
         </ListItem>
 
-        <ListItem button onClick={() => navigate('/logout')}>
+        <ListItem
+          button
+          onClick={() => {
+            localStorage.removeItem('token');
+            logout();
+            navigate('/');
+          }}
+        >
           <ListItemIcon sx={{}}>
             <LogoutIcon />
           </ListItemIcon>

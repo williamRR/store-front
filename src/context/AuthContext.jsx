@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import apiClient from '../axios.config';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 
@@ -68,10 +69,17 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
 
       toast.success('Bienvenido ' + user.email);
-      return { success: true, message: 'Inicio de sesión exitoso' };
     } catch (error) {
-      toast.error('Error: ' + error.message);
-      return { success: false, message: 'Error: ' + error.message };
+      let message;
+      switch (error.response?.status) {
+        case 401:
+          message = 'Correo o contraseña incorrectos.';
+          break;
+        default:
+          message = 'Error: ' + error.message;
+      }
+      toast.error('Error: ' + message);
+      throw new Error(message);
     }
   };
 
@@ -94,6 +102,7 @@ export const AuthProvider = ({ children }) => {
       console.error('Error refreshing access token:', error);
       logout();
       toast.error('Session expired. Please log in again.');
+      navigate('/login');
     }
   };
 

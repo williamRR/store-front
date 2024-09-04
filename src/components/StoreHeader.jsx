@@ -126,12 +126,12 @@ const StoreHeader = () => {
               <IconButton
                 size='small'
                 aria-label='account of current user'
-                onClick={handleMenu}
+                onClick={isAuthenticated ? handleProfile : handleLogin}
                 color='inherit'
               >
                 <AccountCircle />
               </IconButton>
-              {isAuthenticated && (
+              {/* {isAuthenticated && (
                 <Menu
                   id='menu-appbar'
                   anchorEl={anchorEl}
@@ -150,7 +150,7 @@ const StoreHeader = () => {
                   <MenuItem onClick={handleProfile}>Mi Perfil</MenuItem>
                   <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
                 </Menu>
-              )}
+              )} */}
             </Grid>
           </Grid>
         </Toolbar>

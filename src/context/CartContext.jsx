@@ -9,12 +9,13 @@ const initialState = {
 };
 
 const cartReducer = (state, action) => {
+  console.log('Action:', action);
   switch (action.type) {
     case 'ADD_TO_CART': {
       const existingItemIndex = state.cart.findIndex(
         (item) => item._id === action.payload._id,
       );
-
+      console.log('Existing item index:', existingItemIndex);
       let newCart;
 
       if (existingItemIndex !== -1) {
@@ -30,7 +31,7 @@ const cartReducer = (state, action) => {
       }
 
       const newTotalAmount = newCart.reduce(
-        (acc, item) => acc + item.price * (item.quantity || 1),
+        (acc, item) => acc + item.price * item.quantity,
         0,
       );
 
@@ -48,7 +49,6 @@ const cartReducer = (state, action) => {
       return { ...state, cart: newCart, totalAmount: newTotalAmount };
     }
 
-    // En el reducer:
     case 'UPDATE_QUANTITY': {
       const existingItemIndex = state.cart.findIndex(
         (item) => item._id === action.payload._id,
@@ -56,15 +56,12 @@ const cartReducer = (state, action) => {
 
       if (existingItemIndex !== -1) {
         const newCart = [...state.cart];
-        // Actualizar la cantidad sumando el amount (que puede ser positivo o negativo)
         newCart[existingItemIndex].quantity += action.payload.amount;
 
-        // Prevenir que la cantidad sea menor que 1
         if (newCart[existingItemIndex].quantity < 1) {
           newCart[existingItemIndex].quantity = 1;
         }
 
-        // Recalcular el total usando item.quantity
         const newTotalAmount = newCart.reduce(
           (acc, item) => acc + item.price * item.quantity,
           0,
@@ -73,7 +70,7 @@ const cartReducer = (state, action) => {
         return { ...state, cart: newCart, totalAmount: newTotalAmount };
       }
 
-      return state; // Si no se encuentra el producto, no se hace nada
+      return state;
     }
 
     case 'SET_QUANTITY': {
@@ -93,13 +90,33 @@ const cartReducer = (state, action) => {
         return { ...state, cart: newCart, totalAmount: newTotalAmount };
       }
 
-      return state; // Si no se encuentra el producto, no se hace
+      return state;
     }
+
     case 'CLEAR_CART':
       return { ...state, cart: [], totalAmount: 0 };
 
     case 'TOGGLE_CART': {
       return { ...state, isOpen: !state.isOpen };
+    }
+    case 'UPDATE_PRICE': {
+      const existingItemIndex = state.cart.findIndex(
+        (item) => item._id === action.payload._id,
+      );
+
+      if (existingItemIndex !== -1) {
+        const newCart = [...state.cart];
+        newCart[existingItemIndex].price = action.payload.price;
+
+        const newTotalAmount = newCart.reduce(
+          (acc, item) => acc + item.price * item.quantity,
+          0,
+        );
+
+        return { ...state, cart: newCart, totalAmount: newTotalAmount };
+      }
+
+      return state;
     }
 
     default:
@@ -111,9 +128,12 @@ export const CartProvider = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, initialState);
 
   return (
-    <CartContext.Provider value={{ state, dispatch }}>
-      {children}
-    </CartContext.Provider>
+    console.log(state.cart),
+    (
+      <CartContext.Provider value={{ state, dispatch }}>
+        {children}
+      </CartContext.Provider>
+    )
   );
 };
 

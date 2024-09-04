@@ -10,6 +10,7 @@ const AuthModal = ({ open, handleClose }) => {
     handleSubmit,
     formState: { errors },
     reset,
+    setError,
   } = useForm();
   const [view, setView] = useState('login'); // 'login', 'register', 'forgotPassword'
   const { login, register, forgotPassword } = useAuth();
@@ -17,14 +18,9 @@ const AuthModal = ({ open, handleClose }) => {
   const onSubmit = async (data) => {
     try {
       if (view === 'login') {
-        const resp = await login(data);
+        await login(data);
 
-        if (resp.success) {
-          handleClose();
-          // toast.success(resp.message);
-        } else {
-          toast.error(resp.message);
-        }
+        handleClose();
       } else if (view === 'register') {
         const resp = await register(data);
         if (resp.success) {
@@ -38,6 +34,14 @@ const AuthModal = ({ open, handleClose }) => {
       }
       handleClose();
     } catch (error) {
+      setError('email', {
+        type: 'manual',
+        message: 'Credenciales inválidas',
+      });
+      setError('password', {
+        type: 'manual',
+        message: 'Credenciales inválidas',
+      });
       console.error('Error handling submit:', error);
     }
   };
