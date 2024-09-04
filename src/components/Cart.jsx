@@ -4,24 +4,28 @@ import {
   Box,
   List,
   ListItem,
-  ListItemText,
   Button,
   Divider,
   TextField,
+  IconButton,
+  DialogActions,
+  Radio,
+  FormControlLabel,
   Dialog,
   DialogTitle,
   DialogContent,
   RadioGroup,
-  FormControlLabel,
-  Radio,
-  DialogActions,
+  Grid,
 } from '@mui/material';
+import { InputAdornment } from '@mui/material';
+
 import { useCart } from '../context/CartContext';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import AuthModal from './AuthModal';
 import apiClient from '../axios.config';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const Cart = () => {
   const {
@@ -40,9 +44,11 @@ const Cart = () => {
   const handleOpenPaymentDialog = () => {
     setPaymentDialogOpen(true);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
+
   const handleLogin = () => {
     setAuthOpen(true);
     handleClose();
@@ -67,6 +73,7 @@ const Cart = () => {
     dispatch({ type: 'SET_QUANTITY', payload: { _id, quantity } });
     toast('Cantidad actualizada');
   };
+
   const handlePaymentMethodChange = (event) => {
     setPaymentMethod(event.target.value);
   };
@@ -90,7 +97,6 @@ const Cart = () => {
     const body = {
       documentTypeId: 10,
       emissionDate: Math.floor(new Date().getTime() / 1000),
-      // expirationDate: Math.floor(new Date().getTime() / 1000),
       declareSii: 1,
       details: details,
       payments: [
@@ -127,6 +133,15 @@ const Cart = () => {
       }
     }
   };
+
+  const formatCurrency = (amount) => {
+    return amount.toLocaleString('es-ES', {
+      style: 'currency',
+      currency: 'CLP',
+      // minimumFractionDigits: 2,
+    });
+  };
+
   const handlePriceChange = (_id, price) => {
     if (price < 0) return; // Evitar precios negativos
     dispatch({
@@ -137,6 +152,14 @@ const Cart = () => {
 
   const handleClearCart = () => {
     dispatch({ type: 'CLEAR_CART' });
+  };
+
+  const capitalizeString = (str) => {
+    return str
+      .toLowerCase()
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };
 
   return (
@@ -208,8 +231,8 @@ const Cart = () => {
       <Drawer anchor='right' open={isOpen} onClose={toggleCartDrawer}>
         <Box
           sx={{
-            width: 350,
-            padding: '1rem',
+            width: 450, // Hacemos el Drawer más pequeño
+            padding: '0.5rem', // Reducimos el padding
           }}
           role='presentation'
         >
@@ -218,66 +241,98 @@ const Cart = () => {
           </Typography>
           <List>
             {cart?.map((item) => (
-              <ListItem key={item._id} divider>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    style={{
-                      width: '50px',
-                      height: '50px',
-                      objectFit: 'cover',
-                      marginRight: '1rem',
-                    }}
-                  />
-                  <ListItemText
-                    primary={item.name}
-                    secondary={`Cantidad: ${item.quantity}`}
-                  />
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <TextField
-                    type='number'
-                    variant='outlined'
-                    size='small'
-                    value={item.price}
-                    onChange={(e) =>
-                      handlePriceChange(item._id, parseFloat(e.target.value))
-                    }
-                    sx={{ width: '80px', marginX: '0.5rem' }}
-                    inputProps={{ min: 0, step: 0.01 }}
-                  />
-                  <TextField
-                    type='number'
-                    variant='outlined'
-                    size='small'
-                    value={item.quantity}
-                    onChange={(e) =>
-                      handleQuantityChange(item._id, parseInt(e.target.value))
-                    }
-                    sx={{ width: '60px', marginX: '0.5rem' }}
-                    inputProps={{ min: 1 }}
-                  />
-                </Box>
-                <Button
-                  variant='outlined'
-                  color='secondary'
-                  onClick={() => handleRemoveItem(item._id)}
-                  sx={{ marginLeft: '1rem' }}
+              <ListItem
+                key={item._id}
+                divider
+                sx={{ padding: '0.5rem 0' }} // Menos padding en los ListItems
+              >
+                <Grid
+                  container
+                  justifyContent={'space-evenly'}
+                  sx={{ display: 'flex', alignItems: 'center', width: '100%' }}
                 >
-                  Eliminar
-                </Button>
+                  <Grid
+                    item
+                    xs={1}
+                    sx={{
+                      marginRight: '1rem',
+                      width: '50px',
+                    }}
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      style={{
+                        width: '40px', // Reducimos el tamaño de la imagen
+                        height: '40px',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={2} sx={{ minWidth: '1px' }}>
+                    <Typography variant='body2'>
+                      {capitalizeString(item.name)}
+                    </Typography>
+                    <Typography variant='caption'>
+                      Cantidad: {item.quantity}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={7} container justifyContent={'space-around'}>
+                    <TextField
+                      type='number'
+                      sx={{ width: '50%' }}
+                      variant='outlined'
+                      size='small'
+                      value={item.price}
+                      onChange={(e) =>
+                        handlePriceChange(item._id, parseFloat(e.target.value))
+                      }
+                      inputProps={{
+                        min: 0,
+                        step: 0.01,
+                      }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position='start'>$</InputAdornment>
+                        ),
+                      }}
+                    />
+                    <TextField
+                      type='number'
+                      sx={{ width: '25%' }}
+                      variant='outlined'
+                      size='small'
+                      value={item.quantity}
+                      onChange={(e) =>
+                        handleQuantityChange(item._id, parseInt(e.target.value))
+                      }
+                      inputProps={{ min: 1 }}
+                    />
+                    <IconButton
+                      color='secondary'
+                      size='small'
+                      onClick={() => handleRemoveItem(item._id)}
+                      sx={{ width: '10%' }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Grid>
+                </Grid>
               </ListItem>
             ))}
           </List>
-          <Divider sx={{ marginY: '1rem' }} />
-          <Typography variant='h6'>Total: ${totalAmount}</Typography>
+          <Typography
+            variant='subtitle1'
+            sx={{ fontWeight: 'bold', color: 'green', textAlign: 'right' }} // Más estilo
+          >
+            Total: {formatCurrency(totalAmount)}
+          </Typography>{' '}
           <Button
             variant='contained'
             fullWidth
             color='secondary'
             size='small'
-            sx={{ margin: '10px' }}
+            sx={{ margin: '10px 0' }}
             onClick={toggleCartDrawer}
           >
             Seguir comprando
@@ -287,7 +342,7 @@ const Cart = () => {
             fullWidth
             color='secondary'
             size='small'
-            sx={{ margin: '10px' }}
+            sx={{ margin: '10px 0' }}
             onClick={handleClearCart}
           >
             Limpiar Carrito
@@ -300,7 +355,7 @@ const Cart = () => {
                 fullWidth
                 disabled={!cart.length}
                 sx={{
-                  margin: '10px',
+                  margin: '10px 0',
                   transition: 'transform 0.3s ease',
                   transform: showLoginForm
                     ? 'translateX(-150%)'
@@ -310,56 +365,17 @@ const Cart = () => {
               >
                 Iniciar Sesión
               </Button>
-              <Typography variant='body2' gutterBottom textAlign={'center'}>
+              <Typography variant='body2' textAlign='center'>
                 Debes iniciar sesión para pagar
               </Typography>
             </>
-          ) : !isAuthenticated && showLoginForm ? (
-            <Box
-              sx={{
-                margin: '10px',
-                transition: 'transform 0.3s ease',
-                transform: showLoginForm ? 'translateX(0)' : 'translateX(150%)',
-              }}
-            >
-              <TextField
-                label='Correo Electrónico'
-                type='email'
-                fullWidth
-                size='small'
-                margin='normal'
-                variant='outlined'
-              />
-              <TextField
-                label='Contraseña'
-                type='password'
-                fullWidth
-                size='small'
-                margin='normal'
-                variant='outlined'
-              />
-              <Button
-                variant='contained'
-                color='primary'
-                size='small'
-                onClick={() => {
-                  handleLogin();
-                  setShowLoginForm(false);
-                  toast.success('Inicio de sesión exitoso');
-                }}
-                fullWidth
-                sx={{ marginTop: '10px' }}
-              >
-                Iniciar Sesión
-              </Button>
-            </Box>
           ) : (
             <Button
               variant='contained'
               color='primary'
               fullWidth
               disabled={!cart.length}
-              sx={{ margin: '10px' }}
+              sx={{ margin: '10px 0' }}
               onClick={handleOpenPaymentDialog}
             >
               Pagar
