@@ -117,6 +117,10 @@ const ProfileMainContent = () => {
         return 'Transferencia';
     }
   };
+
+  const formatCurrency = (amount) => {
+    return `$${amount.toLocaleString('es-CL')} CLP`;
+  };
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant='h4' gutterBottom>
@@ -297,7 +301,9 @@ const ProfileMainContent = () => {
                                 variant='body2'
                                 sx={{ marginLeft: 'auto', fontWeight: 'bold' }}
                               >
-                                ${product.price * product.quantity}
+                                {formatCurrency(
+                                  product.price * product.quantity,
+                                )}
                               </Typography>
                             </Box>
                           ))}
@@ -319,7 +325,7 @@ const ProfileMainContent = () => {
                               variant='body2'
                               sx={{ fontWeight: 'bold', color: 'green' }}
                             >
-                              ${sale.totalAmount}
+                              {formatCurrency(sale.totalAmount)}
                             </Typography>
                           </Box>
                         </Box>
