@@ -10,16 +10,13 @@ import {
   TableHead,
   TableRow,
   Paper,
-  IconButton,
-  Tooltip,
   Card,
   CardContent,
-  Divider,
   Skeleton,
 } from '@mui/material';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import { formatCurrency } from '../pages/SalesHistory';
 
 const ProfileMainContent = () => {
   const {
@@ -99,10 +96,6 @@ const ProfileMainContent = () => {
     fetchMetrics();
   }, [user]);
 
-  const calculateCommission = (totalAmount) => {
-    return Math.floor(totalAmount * 0.05).toLocaleString('es-CL');
-  };
-
   const dictMethod = (method) => {
     switch (method) {
       case 'credit card':
@@ -112,10 +105,6 @@ const ProfileMainContent = () => {
       case 'transfer':
         return 'Transferencia';
     }
-  };
-
-  const formatCurrency = (amount) => {
-    return `$${amount.toLocaleString('es-CL')} CLP`;
   };
 
   return (
@@ -180,7 +169,7 @@ const ProfileMainContent = () => {
         </Grid>
 
         {/* Ventas por Método de Pago */}
-        <Grid item xs={12}>
+        {/* <Grid item xs={12}>
           <Card sx={{ mt: 2 }}>
             <CardContent>
               <Typography variant='h6'>Ventas por Método de Pago</Typography>
@@ -233,161 +222,8 @@ const ProfileMainContent = () => {
               </TableContainer>
             </CardContent>
           </Card>
-        </Grid>
+        </Grid> */}
       </Grid>
-
-      {/* Sales Table */}
-      <Box sx={{ mt: 4 }}>
-        <Typography variant='h6' gutterBottom>
-          Tus Ventas
-        </Typography>
-        <TableContainer component={Paper} sx={{ mt: 2 }}>
-          <Table size='small'>
-            <TableHead sx={{ bgcolor: 'primary.light' }}>
-              <TableRow>
-                <TableCell sx={{ color: 'primary.contrastText' }}>
-                  Fecha
-                </TableCell>
-                <TableCell sx={{ color: 'primary.contrastText' }}>
-                  Total
-                </TableCell>
-                <TableCell sx={{ color: 'primary.contrastText' }}>
-                  Medio de pago
-                </TableCell>
-                <TableCell sx={{ color: 'primary.contrastText' }}>
-                  Comisión
-                </TableCell>
-                <TableCell sx={{ color: 'primary.contrastText' }}>
-                  Acciones
-                </TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {loading ? (
-                <>
-                  <TableRow>
-                    <TableCell colSpan={5}>
-                      <Skeleton variant='rectangular' height={40} />
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell colSpan={5}>
-                      <Skeleton variant='rectangular' height={40} />
-                    </TableCell>
-                  </TableRow>
-                </>
-              ) : (
-                sales.map((sale) => (
-                  <TableRow key={sale._id}>
-                    <TableCell>
-                      {new Date(sale.date).toLocaleString('es-CL', {
-                        dateStyle: 'short',
-                        timeStyle: 'short',
-                      })}
-                    </TableCell>
-                    <TableCell>{formatCurrency(sale.totalAmount)}</TableCell>
-                    <TableCell>{dictMethod(sale.paymentMethod)}</TableCell>
-                    <TableCell>
-                      {formatCurrency(calculateCommission(sale.totalAmount))}
-                    </TableCell>
-                    <TableCell>
-                      <Tooltip
-                        title={
-                          <Box
-                            sx={{
-                              padding: 2,
-                              minWidth: 250,
-                              backgroundColor: 'black',
-                            }}
-                          >
-                            {sale.products.map((product) => (
-                              <Box
-                                key={product._id}
-                                sx={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'space-between',
-                                  mb: 1,
-                                }}
-                              >
-                                <img
-                                  src={product.image}
-                                  alt={product.name}
-                                  style={{
-                                    width: 50,
-                                    height: 50,
-                                    marginRight: 8,
-                                    borderRadius: '4px',
-                                  }}
-                                />
-                                <Box sx={{ flexGrow: 1 }}>
-                                  <Typography
-                                    variant='body2'
-                                    sx={{ fontWeight: 'bold' }}
-                                  >
-                                    {product.name}
-                                  </Typography>
-                                  <Typography
-                                    variant='body2'
-                                    color='text.secondary'
-                                  >
-                                    Cantidad: {product.quantity} | Precio: $
-                                    {product.price}
-                                  </Typography>
-                                </Box>
-                                <Typography
-                                  variant='body2'
-                                  sx={{
-                                    marginLeft: 'auto',
-                                    fontWeight: 'bold',
-                                  }}
-                                >
-                                  {formatCurrency(
-                                    product.price * product.quantity,
-                                  )}
-                                </Typography>
-                              </Box>
-                            ))}
-                            <Divider sx={{ my: 1 }} />
-                            <Box
-                              sx={{
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                              }}
-                            >
-                              <Typography
-                                variant='body2'
-                                sx={{ fontWeight: 'bold' }}
-                              >
-                                Total Venta:
-                              </Typography>
-                              <Typography
-                                variant='body2'
-                                sx={{
-                                  fontWeight: 'bold',
-                                  color: 'green',
-                                }}
-                              >
-                                {formatCurrency(sale.totalAmount)}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        }
-                        arrow
-                        placement='top'
-                      >
-                        <IconButton size='small' color='primary'>
-                          <VisibilityIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Box>
     </Box>
   );
 };
