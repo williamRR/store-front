@@ -33,25 +33,18 @@ const ProfileSidebar = () => {
           <ListItemText primary='Inicio' />
         </ListItem>
 
-        <ListItem button onClick={() => navigate('/products')}>
-          <ListItemIcon sx={{}}>
-            <StorefrontIcon />
-          </ListItemIcon>
-          <ListItemText primary='Ir al Punto de Servicio' />
-        </ListItem>
-
-        <ListItem button onClick={() => navigate('/profile')}>
-          <ListItemIcon sx={{}}>
-            <SettingsIcon />
-          </ListItemIcon>
-          <ListItemText primary='Cambiar mis Datos' />
-        </ListItem>
-
-        <ListItem button onClick={() => navigate('/perfil/sales-history')}>
+        <ListItem button onClick={() => navigate('/sales-history')}>
           <ListItemIcon sx={{}}>
             <HistoryIcon />
           </ListItemIcon>
           <ListItemText primary='Ver Historial de Ventas' />
+        </ListItem>
+
+        {/* <ListItem button onClick={() => navigate('/profile')}>
+          <ListItemIcon sx={{}}>
+            <SettingsIcon />
+          </ListItemIcon>
+          <ListItemText primary='Cambiar mis Datos' />
         </ListItem>
 
         <ListItem button onClick={() => navigate('/perfil/sales-reports')}>
@@ -59,7 +52,7 @@ const ProfileSidebar = () => {
             <AssessmentIcon />
           </ListItemIcon>
           <ListItemText primary='Ver Informes de Ventas' />
-        </ListItem>
+        </ListItem> 
 
         <ListItem button onClick={() => navigate('/perfil/support')}>
           <ListItemIcon sx={{}}>
@@ -67,7 +60,7 @@ const ProfileSidebar = () => {
           </ListItemIcon>
           <ListItemText primary='Soporte' />
         </ListItem>
-
+*/}
         <ListItem
           button
           onClick={() => {
@@ -80,6 +73,13 @@ const ProfileSidebar = () => {
             <LogoutIcon />
           </ListItemIcon>
           <ListItemText primary='Cerrar Sesión' />
+        </ListItem>
+
+        <ListItem button onClick={() => navigate('/products')}>
+          <ListItemIcon sx={{}}>
+            <StorefrontIcon />
+          </ListItemIcon>
+          <ListItemText primary='Ir al Punto de Servicio' />
         </ListItem>
       </List>
     </Box>

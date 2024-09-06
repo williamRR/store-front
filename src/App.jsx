@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import StoreHeader from './components/StoreHeader';
 import CategoryList from './components/CategoryList';
 import AdCarousel from './components/AdCarousel';
@@ -10,6 +10,8 @@ import {
 import ProductsPage from './components/ProductsPage';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
+import SalesHistory from './pages/SalesHistory';
+import PrivateRoute from './components/PrivateRoute'; // Importa tu componente PrivateRoute
 
 function AppContent() {
   const { loading } = useStoreConfig();
@@ -33,6 +35,7 @@ function AppContent() {
     <>
       <StoreHeader />
       <Routes>
+        {/* Rutas públicas */}
         <Route
           path='/'
           element={
@@ -44,7 +47,13 @@ function AppContent() {
         />
         <Route path='/login' element={<Login />} />
         <Route path='/products' element={<ProductsPage />} />
-        <Route path='/profile' element={<Profile />} />
+
+        {/* Rutas privadas */}
+        <Route path='/profile' element={<PrivateRoute element={Profile} />} />
+        <Route
+          path='/sales-history'
+          element={<PrivateRoute element={SalesHistory} />}
+        />
       </Routes>
     </>
   );
@@ -52,9 +61,12 @@ function AppContent() {
 
 function App() {
   return (
-    <StoreConfigProvider>
-      <AppContent />
-    </StoreConfigProvider>
+    console.count(),
+    (
+      <StoreConfigProvider>
+        <AppContent />
+      </StoreConfigProvider>
+    )
   );
 }
 

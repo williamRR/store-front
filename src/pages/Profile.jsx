@@ -6,7 +6,7 @@ import ProfileMainContent from '../components/ProfileMainContent';
 const Profile = () => {
   return (
     <Box sx={{ display: 'flex' }}>
-      <ProfileSidebar />
+      {/* <ProfileSidebar /> */}
       <Box
         component='main'
         sx={{

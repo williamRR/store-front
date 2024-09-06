@@ -84,7 +84,7 @@ const ProfileMainContent = () => {
         console.error('Error fetching sales:', error);
       }
     };
-
+    console.log(user);
     const fetchMetrics = async () => {
       try {
         const response = await axios.get(

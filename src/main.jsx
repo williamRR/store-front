@@ -10,28 +10,25 @@ import { CartProvider } from './context/CartContext.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <AuthProvider>
-      <CartProvider>
-        <CssBaseline />
-        <ToastContainer
-          position='bottom-right'
-          hideProgressBar={true}
-          autoClose={4000}
-          newestOnTop={true}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme='light'
-        />
-        <Router>
-          <CartProvider>
-            <App />
-          </CartProvider>
-        </Router>
-      </CartProvider>
-    </AuthProvider>
-  </React.StrictMode>,
+  // <React.StrictMode>
+  <AuthProvider>
+    <CartProvider>
+      <CssBaseline />
+      <ToastContainer
+        position='bottom-right'
+        hideProgressBar={false}
+        autoClose={3000}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        theme='light'
+      />
+      <Router>
+        <CartProvider>
+          <App />
+        </CartProvider>
+      </Router>
+    </CartProvider>
+  </AuthProvider>,
+  // </React.StrictMode>,
 );

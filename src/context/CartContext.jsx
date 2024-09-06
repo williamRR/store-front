@@ -9,17 +9,14 @@ const initialState = {
 };
 
 const cartReducer = (state, action) => {
-  console.log('Action:', action);
   switch (action.type) {
     case 'ADD_TO_CART': {
       const existingItemIndex = state.cart.findIndex(
         (item) => item._id === action.payload._id,
       );
-      console.log('Existing item index:', existingItemIndex);
       let newCart;
 
       if (existingItemIndex !== -1) {
-        // Si el producto ya está en el carrito, actualizamos la cantidad
         newCart = [...state.cart];
         newCart[existingItemIndex].quantity += action.payload.quantity || 1;
       } else {
@@ -128,12 +125,9 @@ export const CartProvider = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, initialState);
 
   return (
-    console.log(state.cart),
-    (
-      <CartContext.Provider value={{ state, dispatch }}>
-        {children}
-      </CartContext.Provider>
-    )
+    <CartContext.Provider value={{ state, dispatch }}>
+      {children}
+    </CartContext.Provider>
   );
 };
 
