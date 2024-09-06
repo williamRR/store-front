@@ -110,7 +110,7 @@ const ProfileMainContent = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant='h4' gutterBottom>
-        Bienvenid@ {user?.email}
+        Bienvenid@ {user?.name}
       </Typography>
 
       <Grid container spacing={3}>
