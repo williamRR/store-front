@@ -298,8 +298,8 @@ const ProductsPage = () => {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={paymentDialogOpen} onClose={handleClosePaymentDialog}>
-        <DialogTitle>Seleccione el método de pago</DialogTitle>
+      {/* <Dialog open={paymentDialogOpen} onClose={handleClosePaymentDialog}>
+        <DialogTitle>Seleccione el método de pagoo</DialogTitle>
         <DialogContent>
           <RadioGroup
             aria-label='payment-method'
@@ -336,7 +336,7 @@ const ProductsPage = () => {
             Continuar
           </Button>
         </DialogActions>
-      </Dialog>
+      </Dialog> */}
       <Grid container>
         {/* Sidebar */}
         <Grid

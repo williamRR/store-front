@@ -16,9 +16,9 @@ import {
   DialogContent,
   RadioGroup,
   Grid,
+  CircularProgress,
 } from '@mui/material';
 import { InputAdornment } from '@mui/material';
-
 import { useCart } from '../context/CartContext';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
@@ -33,25 +33,16 @@ const Cart = () => {
     dispatch,
   } = useCart();
   const [authOpen, setAuthOpen] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
 
   const { userData, isAuthenticated, accessToken } = useAuth();
   const [paymentMethod, setPaymentMethod] = useState('');
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
   const [receipt, setReceipt] = useState(null);
   const [pdfModalOpen, setPdfModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleOpenPaymentDialog = () => {
     setPaymentDialogOpen(true);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleLogin = () => {
-    setAuthOpen(true);
-    handleClose();
   };
 
   const handleClosePaymentDialog = () => {
@@ -64,14 +55,13 @@ const Cart = () => {
 
   const handleRemoveItem = (_id) => {
     dispatch({ type: 'REMOVE_FROM_CART', payload: { _id } });
+    toast.info('Producto eliminado del carrito');
   };
 
-  const [showLoginForm, setShowLoginForm] = useState(false);
-
   const handleQuantityChange = (_id, quantity) => {
-    if (quantity < 1) return; // Evitar cantidades negativas o cero
+    if (quantity < 1) return;
     dispatch({ type: 'SET_QUANTITY', payload: { _id, quantity } });
-    toast('Cantidad actualizada');
+    toast.info('Cantidad actualizada');
   };
 
   const handlePaymentMethodChange = (event) => {
@@ -79,6 +69,7 @@ const Cart = () => {
   };
 
   const handleProceedToCheckout = async () => {
+    setLoading(true);
     const details = cart.map((item) => ({
       image: item.image,
       comment: item.name,
@@ -88,18 +79,16 @@ const Cart = () => {
       taxId: '[1]',
       product: item._id,
     }));
+
     let paymentType = 1;
-    if (paymentMethod === 'transbank') {
-      paymentType = 2;
-    }
-    if (paymentMethod === 'transfer') {
-      paymentType = 3;
-    }
+    if (paymentMethod === 'transbank') paymentType = 2;
+    if (paymentMethod === 'transfer') paymentType = 3;
+
     const body = {
       documentTypeId: 10,
       emissionDate: Math.floor(new Date().getTime() / 1000),
       declareSii: 1,
-      details: details,
+      details,
       payments: [
         {
           paymentTypeId: paymentType,
@@ -107,6 +96,7 @@ const Cart = () => {
         },
       ],
     };
+
     try {
       const response = await apiClient.post(
         `${import.meta.env.VITE_API_URL}/stores/${
@@ -117,21 +107,22 @@ const Cart = () => {
           headers: { Authorization: `Bearer ${accessToken}` },
         },
       );
+
       dispatch({ type: 'CLEAR_CART' });
       setPaymentDialogOpen(false);
       dispatch({ type: 'TOGGLE_CART' });
-      setReceipt(response.data); // Guardar la boleta en el estado
-      setPdfModalOpen(true); // Abrir el modal con el PDF
-      toast.success(userData.accessToken);
+      setReceipt(response.data);
+      setPdfModalOpen(true);
       toast.success(`Compra realizada con éxito: ${response.data._id}`);
     } catch (error) {
       console.error('Error al procesar la compra:', error);
-
       if (error.response && error.response.data && error.response.data.error) {
         toast.error(`Error: ${error.response.data.error}`);
       } else {
         toast.error('Error al procesar la compra');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -139,12 +130,11 @@ const Cart = () => {
     return amount.toLocaleString('es-ES', {
       style: 'currency',
       currency: 'CLP',
-      // minimumFractionDigits: 2,
     });
   };
 
   const handlePriceChange = (_id, price) => {
-    if (price < 0) return; // Evitar precios negativos
+    if (price < 0) return;
     dispatch({
       type: 'UPDATE_PRICE',
       payload: { _id, price: parseFloat(price) },
@@ -153,6 +143,7 @@ const Cart = () => {
 
   const handleClearCart = () => {
     dispatch({ type: 'CLEAR_CART' });
+    toast.info('Carrito limpiado');
   };
 
   const capitalizeString = (str) => {
@@ -165,10 +156,10 @@ const Cart = () => {
 
   return (
     <>
+      {/* Dialog for PDF receipt */}
       <Dialog
         open={pdfModalOpen}
         onClose={() => setPdfModalOpen(false)}
-        // maxWidth='xs'
         fullWidth
       >
         <DialogTitle>Boleta Generada</DialogTitle>
@@ -190,6 +181,7 @@ const Cart = () => {
         </DialogActions>
       </Dialog>
 
+      {/* Dialog for Payment Method Selection */}
       <Dialog open={paymentDialogOpen} onClose={handleClosePaymentDialog}>
         <DialogTitle>Seleccione el método de pago</DialogTitle>
         <DialogContent>
@@ -223,54 +215,46 @@ const Cart = () => {
           <Button
             onClick={handleProceedToCheckout}
             color='primary'
-            disabled={!paymentMethod}
+            disabled={!paymentMethod || loading}
           >
-            Continuar
+            {loading ? <CircularProgress size={20} /> : 'Continuar'}
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Cart Drawer */}
       <Drawer anchor='right' open={isOpen} onClose={toggleCartDrawer}>
         <Box
           sx={{
-            width: 450, // Hacemos el Drawer más pequeño
-            padding: '0.5rem', // Reducimos el padding
+            width: 450,
+            padding: '0.5rem',
           }}
           role='presentation'
         >
           <Typography variant='h6' gutterBottom>
             Carrito de Compras
           </Typography>
+
           <List>
             {cart?.map((item) => (
-              <ListItem
-                key={item._id}
-                divider
-                sx={{ padding: '0.5rem 0' }} // Menos padding en los ListItems
-              >
+              <ListItem key={item._id} divider sx={{ padding: '0.5rem 0' }}>
                 <Grid
                   container
                   justifyContent={'space-evenly'}
                   sx={{ display: 'flex', alignItems: 'center', width: '100%' }}
                 >
-                  <Grid
-                    item
-                    xs={1}
-                    sx={{
-                      marginRight: '1rem',
-                      width: '50px',
-                    }}
-                  >
+                  <Grid item xs={1} sx={{ marginRight: '1rem', width: '50px' }}>
                     <img
                       src={item.image}
                       alt={item.name}
                       style={{
-                        width: '40px', // Reducimos el tamaño de la imagen
+                        width: '40px',
                         height: '40px',
                         objectFit: 'cover',
                       }}
                     />
                   </Grid>
-                  <Grid item xs={2} sx={{ minWidth: '1px' }}>
+                  <Grid item xs={2}>
                     <Typography variant='body2'>
                       {capitalizeString(item.name)}
                     </Typography>
@@ -288,10 +272,7 @@ const Cart = () => {
                       onChange={(e) =>
                         handlePriceChange(item._id, parseFloat(e.target.value))
                       }
-                      inputProps={{
-                        min: 0,
-                        step: 0.01,
-                      }}
+                      inputProps={{ min: 0, step: 0.01 }}
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position='start'>$</InputAdornment>
@@ -322,12 +303,14 @@ const Cart = () => {
               </ListItem>
             ))}
           </List>
+
           <Typography
             variant='subtitle1'
-            sx={{ fontWeight: 'bold', color: 'green', textAlign: 'right' }} // Más estilo
+            sx={{ fontWeight: 'bold', color: 'green', textAlign: 'right' }}
           >
-            Total: ${formatCurrency(totalAmount)}
-          </Typography>{' '}
+            Total: {formatCurrency(totalAmount)}
+          </Typography>
+
           <Button
             variant='contained'
             fullWidth
@@ -338,6 +321,7 @@ const Cart = () => {
           >
             Seguir comprando
           </Button>
+
           <Button
             variant='contained'
             fullWidth
@@ -348,20 +332,15 @@ const Cart = () => {
           >
             Limpiar Carrito
           </Button>
-          {!isAuthenticated && !showLoginForm ? (
+
+          {!isAuthenticated ? (
             <>
               <Button
                 variant='contained'
                 color='primary'
                 fullWidth
                 disabled={!cart.length}
-                sx={{
-                  margin: '10px 0',
-                  transition: 'transform 0.3s ease',
-                  transform: showLoginForm
-                    ? 'translateX(-150%)'
-                    : 'translateX(0)',
-                }}
+                sx={{ margin: '10px 0' }}
                 onClick={() => setAuthOpen(true)}
               >
                 Iniciar Sesión
@@ -375,15 +354,16 @@ const Cart = () => {
               variant='contained'
               color='primary'
               fullWidth
-              disabled={!cart.length}
+              disabled={!cart.length || loading || paymentDialogOpen}
               sx={{ margin: '10px 0' }}
               onClick={handleOpenPaymentDialog}
             >
-              Pagar
+              {'Pagar'}
             </Button>
           )}
         </Box>
       </Drawer>
+
       <AuthModal open={authOpen} handleClose={() => setAuthOpen(false)} />
     </>
   );
