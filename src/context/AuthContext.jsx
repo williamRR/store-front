@@ -1,20 +1,18 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import apiClient from '../axios.config';
-import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 
 function decodeToken(token) {
+  if (!token) return null; // Ensure token exists
   try {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     const jsonPayload = decodeURIComponent(
       atob(base64)
         .split('')
-        .map(function (c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        })
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
         .join(''),
     );
     return JSON.parse(jsonPayload);
@@ -39,13 +37,16 @@ export const AuthProvider = ({ children }) => {
     const storedIdToken = localStorage.getItem('idToken');
     if (storedIdToken) {
       const userInfo = decodeToken(storedIdToken);
+      console.log('userInfo', userInfo);
       if (userInfo && new Date() < new Date(userInfo.exp * 1000)) {
         setAccessToken(localStorage.getItem('accessToken'));
         setUserData(userInfo);
         setIsAuthenticated(true);
       } else {
-        logout();
+        logout(); // Automatically log out if token is invalid/expired
       }
+    } else {
+      // setLoading(false);
     }
   }, []);
 
@@ -53,42 +54,31 @@ export const AuthProvider = ({ children }) => {
     try {
       const url = `${urlBase}login`;
       const { data } = await apiClient.post(url, formData, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
       });
 
-      const { user, accessToken, idToken, refreshToken } = data;
-
+      const { accessToken, idToken, refreshToken } = data;
+      const user = decodeToken(idToken);
+      console.log(user);
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('idToken', idToken);
       localStorage.setItem('refreshToken', refreshToken);
-
       setUserData(user);
       setAccessToken(accessToken);
       setIsAuthenticated(true);
 
-      toast.success('Bienvenido ' + user.email);
+      toast.success(`Bienvenido ${user.email}`);
     } catch (error) {
-      let message;
-      switch (error.response?.status) {
-        case 401:
-          message = 'Correo o contraseña incorrectos.';
-          break;
-        default:
-          message = 'Error: ' + error.message;
-      }
-      toast.error('Error: ' + message);
-      throw new Error(message);
+      handleAuthError(error);
     }
   };
 
   const refreshAccessToken = async () => {
     try {
-      const url = `${urlBase}refresh-token`;
       const refreshToken = localStorage.getItem('refreshToken');
       if (!refreshToken) throw new Error('No refresh token available');
 
+      const url = `${urlBase}refresh-token`;
       const { data } = await apiClient.post(url, { refreshToken });
 
       const { accessToken, idToken } = data;
@@ -99,23 +89,20 @@ export const AuthProvider = ({ children }) => {
       setUserData(decodeToken(idToken));
       setIsAuthenticated(true);
     } catch (error) {
-      console.error('Error refreshing access token:', error);
-      logout();
-      toast.error('Session expired. Please log in again.');
-      navigate('/login');
+      handleAuthError(error, true);
     }
   };
 
   useEffect(() => {
     if (accessToken) {
       const decodedToken = decodeToken(accessToken);
-      const tokenExpirationTime = decodedToken?.exp * 1000 - Date.now() - 60000; // 1 minuto antes de expirar
+      const tokenExpirationTime = decodedToken?.exp * 1000 - Date.now() - 60000;
 
       if (tokenExpirationTime > 0) {
         const timer = setTimeout(refreshAccessToken, tokenExpirationTime);
         return () => clearTimeout(timer);
       } else {
-        refreshAccessToken();
+        refreshAccessToken(); // Immediately refresh if token expired
       }
     }
   }, [accessToken]);
@@ -123,31 +110,27 @@ export const AuthProvider = ({ children }) => {
   const register = async (formData) => {
     try {
       const url = `${urlBase}register`;
-      await axios.post(url, formData, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      await apiClient.post(url, formData, {
+        headers: { 'Content-Type': 'application/json' },
       });
       return {
         success: true,
         message: 'Registro exitoso. Ahora puede iniciar sesión.',
       };
     } catch (error) {
-      return { success: false, message: 'Error: ' + error.message };
+      return { success: false, message: `Error: ${error.message}` };
     }
   };
 
   const forgotPassword = async (formData) => {
     try {
       const url = `${urlBase}forgot-password`;
-      await axios.post(url, formData, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      await apiClient.post(url, formData, {
+        headers: { 'Content-Type': 'application/json' },
       });
       toast.success('Correo de recuperación enviado.');
     } catch (error) {
-      toast.error('Error: ' + error.message);
+      toast.error(`Error: ${error.message}`);
     }
   };
 
@@ -159,6 +142,15 @@ export const AuthProvider = ({ children }) => {
     setAccessToken(null);
     setUserData({});
     toast.info('Sesión cerrada.');
+  };
+
+  const handleAuthError = (error, redirectOnExpire = false) => {
+    console.error('Authentication error:', error);
+    toast.error(`Error: ${error.response?.data?.message || error.message}`);
+    logout();
+    if (redirectOnExpire) {
+      navigate('/login');
+    }
   };
 
   return (

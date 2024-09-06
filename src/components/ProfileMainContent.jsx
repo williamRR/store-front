@@ -21,7 +21,12 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
 const ProfileMainContent = () => {
-  const { userData: user } = useAuth();
+  const {
+    userData: { user },
+  } = useAuth();
+  console.log('user');
+  console.log(user);
+  console.log('user');
   const [sales, setSales] = useState([]);
   const [metrics, setMetrics] = useState({
     salesToday: 0,
@@ -44,13 +49,11 @@ const ProfileMainContent = () => {
         const response = await axios.get(
           `${import.meta.env.VITE_API_URL}/stores/${
             import.meta.env.VITE_STORE_ID
-          }/sales?seller=${user.userId}`,
+          }/sales?seller=${user._id}`,
         );
 
         const { sales: salesData, paymentMethodCounts: pmCounts } =
           response.data.sales;
-        console.log(response.data);
-        console.log(salesData);
         // Calcular la comisión de hoy y de este mes
         const today = new Date().toISOString().slice(0, 10);
         const currentMonth = new Date().getMonth();
@@ -84,11 +87,10 @@ const ProfileMainContent = () => {
         console.error('Error fetching sales:', error);
       }
     };
-    console.log(user);
     const fetchMetrics = async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/sales/metrics/${user.userId}`,
+          `${import.meta.env.VITE_API_URL}/sales/metrics/${user._id}`,
         );
         setMetrics((prevMetrics) => ({
           ...prevMetrics,
@@ -124,7 +126,7 @@ const ProfileMainContent = () => {
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant='h4' gutterBottom>
-        Bienvenid@ {user.email}
+        Bienvenid@ {user?.email}
       </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
