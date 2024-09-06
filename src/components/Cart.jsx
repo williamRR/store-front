@@ -80,6 +80,7 @@ const Cart = () => {
 
   const handleProceedToCheckout = async () => {
     const details = cart.map((item) => ({
+      image: item.image,
       comment: item.name,
       netUnitValue: item.price / 1.19,
       price: item.price,
