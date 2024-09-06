@@ -15,6 +15,7 @@ import {
   Card,
   CardContent,
   Divider,
+  Skeleton,
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { useAuth } from '../context/AuthContext';
@@ -24,10 +25,8 @@ const ProfileMainContent = () => {
   const {
     userData: { user },
   } = useAuth();
-  console.log('user');
-  console.log(user);
-  console.log('user');
   const [sales, setSales] = useState([]);
+  const [loading, setLoading] = useState(true); // Estado para el skeleton
   const [metrics, setMetrics] = useState({
     salesToday: 0,
     totalRevenueToday: 0,
@@ -54,21 +53,14 @@ const ProfileMainContent = () => {
 
         const { sales: salesData, paymentMethodCounts: pmCounts } =
           response.data.sales;
-        // Calcular la comisión de hoy y de este mes
+
         const today = new Date().toISOString().slice(0, 10);
         const currentMonth = new Date().getMonth();
-
-        let commissionToday = salesData.commissionToday;
         let commissionThisMonth = 0;
 
         salesData.forEach((sale) => {
           const saleDate = new Date(sale.date);
           const saleTotal = sale.totalAmount;
-
-          // Comisión diaria
-          // if (saleDate.toISOString().slice(0, 10) === today) {
-          //   commissionToday += Math.floor(salesToday * 0.05);
-          // }
 
           // Comisión mensual
           if (saleDate.getMonth() === currentMonth) {
@@ -79,14 +71,16 @@ const ProfileMainContent = () => {
         setSales(salesData);
         setMetrics((prevMetrics) => ({
           ...prevMetrics,
-          // commissionToday,
           commissionThisMonth,
         }));
         setPaymentMethodCounts(pmCounts);
       } catch (error) {
         console.error('Error fetching sales:', error);
+      } finally {
+        setTimeout(() => setLoading(false), 1000); // Stop loading after fetching sales
       }
     };
+
     const fetchMetrics = async () => {
       try {
         const response = await axios.get(
@@ -123,46 +117,69 @@ const ProfileMainContent = () => {
   const formatCurrency = (amount) => {
     return `$${amount.toLocaleString('es-CL')} CLP`;
   };
+
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant='h4' gutterBottom>
         Bienvenid@ {user?.email}
       </Typography>
+
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
           <Card sx={{ bgcolor: 'primary.main', color: 'white' }}>
             <CardContent>
               <Typography variant='h6'>Ventas Hoy</Typography>
-              <Typography variant='h4' sx={{ fontWeight: 'bold' }}>
-                {metrics.salesToday}
-              </Typography>
-              <Typography variant='subtitle1'>
-                Ingresos: ${metrics.totalRevenueToday?.toLocaleString()}
-              </Typography>
-              <Typography variant='subtitle1'>
-                Comisión: ${metrics.commissionToday?.toLocaleString()}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Card sx={{ bgcolor: 'secondary.main', color: 'white' }}>
-            <CardContent>
-              <Typography variant='h6'>Ventas Este Mes</Typography>
-              <Typography variant='h4' sx={{ fontWeight: 'bold' }}>
-                {metrics.salesThisMonth}
-              </Typography>
-              <Typography variant='subtitle1'>
-                Ingresos: ${metrics.totalRevenueThisMonth?.toLocaleString()}
-              </Typography>
-              <Typography variant='subtitle1'>
-                Comisión: ${metrics.commissionThisMonth?.toLocaleString()}
-              </Typography>
+              {loading ? (
+                <>
+                  <Skeleton variant='text' width={100} height={50} />
+                  <Skeleton variant='text' width={150} />
+                  <Skeleton variant='text' width={150} />
+                </>
+              ) : (
+                <>
+                  <Typography variant='h4' sx={{ fontWeight: 'bold' }}>
+                    {metrics.salesToday}
+                  </Typography>
+                  <Typography variant='subtitle1'>
+                    Ingresos: {formatCurrency(metrics.totalRevenueToday)}
+                  </Typography>
+                  <Typography variant='subtitle1'>
+                    Comisión: {formatCurrency(metrics.commissionToday)}
+                  </Typography>
+                </>
+              )}
             </CardContent>
           </Card>
         </Grid>
 
-        {/* New section for payment method counts */}
+        <Grid item xs={12} md={6}>
+          <Card sx={{ bgcolor: 'secondary.main', color: 'white' }}>
+            <CardContent>
+              <Typography variant='h6'>Ventas Este Mes</Typography>
+              {loading ? (
+                <>
+                  <Skeleton variant='text' width={100} height={50} />
+                  <Skeleton variant='text' width={150} />
+                  <Skeleton variant='text' width={150} />
+                </>
+              ) : (
+                <>
+                  <Typography variant='h4' sx={{ fontWeight: 'bold' }}>
+                    {metrics.salesThisMonth}
+                  </Typography>
+                  <Typography variant='subtitle1'>
+                    Ingresos: {formatCurrency(metrics.totalRevenueThisMonth)}
+                  </Typography>
+                  <Typography variant='subtitle1'>
+                    Comisión: {formatCurrency(metrics.commissionThisMonth)}
+                  </Typography>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Ventas por Método de Pago */}
         <Grid item xs={12}>
           <Card sx={{ mt: 2 }}>
             <CardContent>
@@ -183,20 +200,34 @@ const ProfileMainContent = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {Object.keys(paymentMethodCounts).map((method) => (
-                      <TableRow key={method}>
-                        <TableCell>{dictMethod(method)}</TableCell>
-                        <TableCell>
-                          {paymentMethodCounts[method].count}
-                        </TableCell>
-                        <TableCell>
-                          $
-                          {paymentMethodCounts[
-                            method
-                          ].totalAmount.toLocaleString('es-CL')}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {loading ? (
+                      <>
+                        <TableRow>
+                          <TableCell colSpan={3}>
+                            <Skeleton variant='rectangular' height={40} />
+                          </TableCell>
+                        </TableRow>
+                        <TableRow>
+                          <TableCell colSpan={3}>
+                            <Skeleton variant='rectangular' height={40} />
+                          </TableCell>
+                        </TableRow>
+                      </>
+                    ) : (
+                      Object.keys(paymentMethodCounts).map((method) => (
+                        <TableRow key={method}>
+                          <TableCell>{dictMethod(method)}</TableCell>
+                          <TableCell>
+                            {paymentMethodCounts[method].count}
+                          </TableCell>
+                          <TableCell>
+                            {formatCurrency(
+                              paymentMethodCounts[method].totalAmount,
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -205,6 +236,7 @@ const ProfileMainContent = () => {
         </Grid>
       </Grid>
 
+      {/* Sales Table */}
       <Box sx={{ mt: 4 }}>
         <Typography variant='h6' gutterBottom>
           Tus Ventas
@@ -231,117 +263,127 @@ const ProfileMainContent = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {sales.map((sale) => (
-                <TableRow key={sale._id}>
-                  <TableCell>
-                    {new Date(sale.date).toLocaleString('es-CL', {
-                      dateStyle: 'short',
-                      timeStyle: 'short',
-                    })}
-                  </TableCell>
-                  <TableCell>{sale.total}</TableCell>
-                  <TableCell>
-                    {sale.paymentMethod === 'credit card' ||
-                    sale.paymentMethod === 'debit card'
-                      ? 'Transbank'
-                      : sale.paymentMethod === 'cash'
-                      ? 'Efectivo'
-                      : 'Transferencia'}
-                  </TableCell>
-                  <TableCell>
-                    ${calculateCommission(sale.totalAmount)}
-                  </TableCell>
-                  <TableCell>
-                    <Tooltip
-                      title={
-                        <Box
-                          sx={{
-                            padding: 2,
-                            minWidth: 250,
-                            // opacity: 1,
-                            backgroundColor: 'black',
-                          }}
-                        >
-                          {' '}
-                          {/* Ampliamos el ancho */}
-                          {sale.products.map((product) => (
-                            <Box
-                              key={product._id}
-                              sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                mb: 1,
-                              }}
-                            >
-                              <img
-                                src={product.image}
-                                alt={product.name}
-                                style={{
-                                  width: 50,
-                                  height: 50,
-                                  marginRight: 8,
-                                  borderRadius: '4px',
-                                }}
-                              />
-                              <Box sx={{ flexGrow: 1 }}>
-                                <Typography
-                                  variant='body2'
-                                  sx={{ fontWeight: 'bold' }}
-                                >
-                                  {product.name}
-                                </Typography>
-                                <Typography
-                                  variant='body2'
-                                  color='text.secondary'
-                                >
-                                  Cantidad: {product.quantity} | Precio: $
-                                  {product.price}
-                                </Typography>
-                              </Box>
-                              <Typography
-                                variant='body2'
-                                sx={{ marginLeft: 'auto', fontWeight: 'bold' }}
-                              >
-                                {formatCurrency(
-                                  product.price * product.quantity,
-                                )}
-                              </Typography>
-                            </Box>
-                          ))}
-                          <Divider sx={{ my: 1 }} />
-                          {/* Total de la venta */}
+              {loading ? (
+                <>
+                  <TableRow>
+                    <TableCell colSpan={5}>
+                      <Skeleton variant='rectangular' height={40} />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={5}>
+                      <Skeleton variant='rectangular' height={40} />
+                    </TableCell>
+                  </TableRow>
+                </>
+              ) : (
+                sales.map((sale) => (
+                  <TableRow key={sale._id}>
+                    <TableCell>
+                      {new Date(sale.date).toLocaleString('es-CL', {
+                        dateStyle: 'short',
+                        timeStyle: 'short',
+                      })}
+                    </TableCell>
+                    <TableCell>{formatCurrency(sale.totalAmount)}</TableCell>
+                    <TableCell>{dictMethod(sale.paymentMethod)}</TableCell>
+                    <TableCell>
+                      {formatCurrency(calculateCommission(sale.totalAmount))}
+                    </TableCell>
+                    <TableCell>
+                      <Tooltip
+                        title={
                           <Box
                             sx={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
+                              padding: 2,
+                              minWidth: 250,
+                              backgroundColor: 'black',
                             }}
                           >
-                            <Typography
-                              variant='body2'
-                              sx={{ fontWeight: 'bold' }}
+                            {sale.products.map((product) => (
+                              <Box
+                                key={product._id}
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  mb: 1,
+                                }}
+                              >
+                                <img
+                                  src={product.image}
+                                  alt={product.name}
+                                  style={{
+                                    width: 50,
+                                    height: 50,
+                                    marginRight: 8,
+                                    borderRadius: '4px',
+                                  }}
+                                />
+                                <Box sx={{ flexGrow: 1 }}>
+                                  <Typography
+                                    variant='body2'
+                                    sx={{ fontWeight: 'bold' }}
+                                  >
+                                    {product.name}
+                                  </Typography>
+                                  <Typography
+                                    variant='body2'
+                                    color='text.secondary'
+                                  >
+                                    Cantidad: {product.quantity} | Precio: $
+                                    {product.price}
+                                  </Typography>
+                                </Box>
+                                <Typography
+                                  variant='body2'
+                                  sx={{
+                                    marginLeft: 'auto',
+                                    fontWeight: 'bold',
+                                  }}
+                                >
+                                  {formatCurrency(
+                                    product.price * product.quantity,
+                                  )}
+                                </Typography>
+                              </Box>
+                            ))}
+                            <Divider sx={{ my: 1 }} />
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                              }}
                             >
-                              Total Venta:
-                            </Typography>
-                            <Typography
-                              variant='body2'
-                              sx={{ fontWeight: 'bold', color: 'green' }}
-                            >
-                              {formatCurrency(sale.totalAmount)}
-                            </Typography>
+                              <Typography
+                                variant='body2'
+                                sx={{ fontWeight: 'bold' }}
+                              >
+                                Total Venta:
+                              </Typography>
+                              <Typography
+                                variant='body2'
+                                sx={{
+                                  fontWeight: 'bold',
+                                  color: 'green',
+                                }}
+                              >
+                                {formatCurrency(sale.totalAmount)}
+                              </Typography>
+                            </Box>
                           </Box>
-                        </Box>
-                      }
-                      arrow
-                      placement='top'
-                    >
-                      <IconButton size='small' color='primary'>
-                        <VisibilityIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                </TableRow>
-              ))}
+                        }
+                        arrow
+                        placement='top'
+                      >
+                        <IconButton size='small' color='primary'>
+                          <VisibilityIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>
