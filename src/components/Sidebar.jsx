@@ -57,36 +57,38 @@ const Sidebar = ({
       <Typography variant='h6' gutterBottom sx={{ fontSize: '1rem' }}>
         Categorías
       </Typography>
-      {categories.map((category) => (
-        <Typography
-          key={category._id}
-          variant='body2'
-          gutterBottom
-          sx={
-            category._id === filters.category
-              ? {
-                  fontWeight: 'bold',
-                  backgroundColor: 'primary.light',
-                  padding: '0.3rem 0.5rem',
-                  color: 'white',
-                  borderRadius: '5px',
-                }
-              : {
-                  cursor: 'pointer',
-                  backgroundColor: 'silver',
-                  padding: '0.3rem 0.5rem',
-                  borderRadius: '5px',
-                  '&:hover': {
-                    color: 'secondary.main',
+      {categories
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((category) => (
+          <Typography
+            key={category._id}
+            variant='body2'
+            gutterBottom
+            sx={
+              category._id === filters.category
+                ? {
+                    fontWeight: 'bold',
                     backgroundColor: 'primary.light',
-                  },
-                }
-          }
-          onClick={() => handleCategoryClick(category._id)}
-        >
-          {toTitleCase(category.name)}
-        </Typography>
-      ))}
+                    padding: '0.3rem 0.5rem',
+                    color: 'white',
+                    borderRadius: '5px',
+                  }
+                : {
+                    cursor: 'pointer',
+                    backgroundColor: 'silver',
+                    padding: '0.3rem 0.5rem',
+                    borderRadius: '5px',
+                    '&:hover': {
+                      color: 'secondary.main',
+                      backgroundColor: 'primary.light',
+                    },
+                  }
+            }
+            onClick={() => handleCategoryClick(category._id)}
+          >
+            {toTitleCase(category.name)}
+          </Typography>
+        ))}
 
       <Divider sx={{ my: 2 }} />
 
