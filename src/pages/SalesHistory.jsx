@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import {
   Box,
-  Divider,
-  IconButton,
   Paper,
-  Skeleton,
   Table,
   TableBody,
   TableCell,
@@ -16,21 +13,24 @@ import {
   Tooltip,
   Typography,
   TablePagination,
-  Grid,
-  TextField,
-  Button,
-  CircularProgress,
+  IconButton,
+  Divider,
+  Skeleton,
 } from '@mui/material';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import {
+  Visibility as VisibilityIcon,
+  ArrowDownward,
+  ArrowUpward,
+} from '@mui/icons-material';
 
 const SalesHistory = () => {
   const [sales, setSales] = useState([]);
-  const [loading, setLoading] = useState(true); // Estado para el skeleton
+  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [totalSales, setTotalSales] = useState(0); // Para paginación
-  const [startDate, setStartDate] = useState(''); // Fecha desde
-  const [endDate, setEndDate] = useState(''); // Fecha hasta
+  const [totalSales, setTotalSales] = useState(0);
+  const [sort, setSort] = useState('date'); // Estado para saber qué columna se está ordenando
+  const [order, setOrder] = useState('desc'); // Estado para el orden asc o desc
 
   const {
     userData: { user },
@@ -38,7 +38,7 @@ const SalesHistory = () => {
 
   useEffect(() => {
     fetchSales();
-  }, [page, rowsPerPage, startDate, endDate]);
+  }, [page, rowsPerPage, sort, order]);
 
   const fetchSales = async () => {
     setLoading(true);
@@ -46,9 +46,9 @@ const SalesHistory = () => {
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/stores/${
           import.meta.env.VITE_STORE_ID
-        }/sales?seller=${user._id}&page=${page + 1}&limit=${rowsPerPage}${
-          startDate ? `&startDate=${startDate}` : ''
-        }${endDate ? `&endDate=${endDate}` : ''}`,
+        }/sales?seller=${user._id}&page=${
+          page + 1
+        }&limit=${rowsPerPage}&sort=${sort}&order=${order}`,
       );
       const { sales: salesData, totalSales } = response.data;
       setSales(salesData);
@@ -56,7 +56,7 @@ const SalesHistory = () => {
     } catch (error) {
       console.error('Error fetching sales:', error);
     } finally {
-      setTimeout(() => setLoading(false), 500); // Añadir un delay de 500ms
+      setLoading(false);
     }
   };
 
@@ -66,72 +66,69 @@ const SalesHistory = () => {
 
   const handleRowsPerPageChange = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0); // Reset page when changing rows per page
+    setPage(0); // Reiniciar la página cuando se cambien las filas por página
   };
 
-  const handleDateFilter = () => {
-    fetchSales();
+  // Función para manejar el cambio de ordenamiento
+  const handleSortChange = (property) => {
+    const isAsc = sort === property && order === 'asc'; // Verificar si ya está en ascendente
+    setOrder(isAsc ? 'desc' : 'asc'); // Alternar entre ascendente y descendente
+    setSort(property); // Establecer la columna que se está ordenando
   };
 
   return (
-    <Box sx={{ mt: 4 }}>
+    <Box sx={{ mt: 4, width: '90%' }}>
       <Typography variant='h6' gutterBottom>
-        Tus Ventas
+        Historial de Ventas
       </Typography>
-
-      <Grid container spacing={2} sx={{ mb: 2 }}>
-        <Grid item xs={12} sm={4}>
-          <TextField
-            label='Desde'
-            type='date'
-            fullWidth
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <TextField
-            label='Hasta'
-            type='date'
-            fullWidth
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            InputLabelProps={{
-              shrink: true,
-            }}
-          />
-        </Grid>
-        <Grid
-          item
-          xs={12}
-          sm={4}
-          sx={{ display: 'flex', alignItems: 'center' }}
-        >
-          <Button variant='contained' onClick={handleDateFilter}>
-            Filtrar
-          </Button>
-        </Grid>
-      </Grid>
 
       <TableContainer component={Paper} sx={{ mt: 2 }}>
         <Table size='small' sx={{ minWidth: 650, padding: '8px' }}>
           <TableHead sx={{ bgcolor: 'primary.light' }}>
             <TableRow>
-              <TableCell sx={{ color: 'primary.contrastText', padding: '6px' }}>
+              {/* Fecha con ordenamiento */}
+              <TableCell
+                sx={{ color: 'primary.contrastText', padding: '6px' }}
+                onClick={() => handleSortChange('date')}
+              >
                 Fecha
+                <IconButton>
+                  {sort === 'date' && order === 'asc' ? (
+                    <ArrowUpward fontSize='small' sx={{ color: 'white' }} />
+                  ) : sort === 'date' && order === 'desc' ? (
+                    <ArrowDownward fontSize='small' sx={{ color: 'white' }} />
+                  ) : null}{' '}
+                  {/* Mostrar solo si la columna activa es "date" */}
+                </IconButton>
               </TableCell>
-              <TableCell sx={{ color: 'primary.contrastText', padding: '6px' }}>
+
+              {/* Total con ordenamiento */}
+              <TableCell
+                sx={{ color: 'primary.contrastText', padding: '6px' }}
+                onClick={() => handleSortChange('totalAmount')}
+              >
                 Total
+                <IconButton>
+                  {sort === 'totalAmount' && order === 'asc' ? (
+                    <ArrowUpward fontSize='small' sx={{ color: 'white' }} />
+                  ) : sort === 'totalAmount' && order === 'desc' ? (
+                    <ArrowDownward fontSize='small' sx={{ color: 'white' }} />
+                  ) : null}{' '}
+                  {/* Mostrar solo si la columna activa es "totalAmount" */}
+                </IconButton>
               </TableCell>
+
+              {/* Medio de pago */}
               <TableCell sx={{ color: 'primary.contrastText', padding: '6px' }}>
                 Medio de pago
               </TableCell>
+
+              {/* Comisión */}
               <TableCell sx={{ color: 'primary.contrastText', padding: '6px' }}>
                 Comisión
               </TableCell>
+
+              {/* Acciones */}
               <TableCell sx={{ color: 'primary.contrastText', padding: '6px' }}>
                 Acciones
               </TableCell>
@@ -140,16 +137,13 @@ const SalesHistory = () => {
           <TableBody>
             {loading ? (
               <>
-                <TableRow>
-                  <TableCell colSpan={5}>
-                    <Skeleton variant='rectangular' height={40} />
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell colSpan={5}>
-                    <Skeleton variant='rectangular' height={40} />
-                  </TableCell>
-                </TableRow>
+                {[...Array(5)].map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell colSpan={5}>
+                      <Skeleton variant='rectangular' height={40} />
+                    </TableCell>
+                  </TableRow>
+                ))}
               </>
             ) : sales.length === 0 ? (
               <TableRow>
@@ -158,7 +152,7 @@ const SalesHistory = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              sales?.map((sale) => (
+              sales.map((sale) => (
                 <TableRow key={sale._id}>
                   <TableCell sx={{ padding: '6px' }}>
                     {new Date(sale.date).toLocaleString('es-CL', {
@@ -280,27 +274,23 @@ const SalesHistory = () => {
           onRowsPerPageChange={handleRowsPerPageChange}
         />
       </TableContainer>
-
-      {/* Show loading spinner while fetching sales */}
-      {/* {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-          <CircularProgress />
-        </Box>
-      )} */}
     </Box>
   );
 };
 
 export default SalesHistory;
 
+// Función de formato de moneda
 export const formatCurrency = (amount) => {
   return `$${amount.toLocaleString('es-CL')} CLP`;
 };
 
+// Función para calcular la comisión
 const calculateCommission = (totalAmount) => {
   return Math.floor(totalAmount * 0.05).toLocaleString('es-CL');
 };
 
+// Función para traducir el método de pago
 const dictMethod = (method) => {
   switch (method) {
     case 'credit card':
@@ -309,5 +299,7 @@ const dictMethod = (method) => {
       return 'Efectivo';
     case 'transfer':
       return 'Transferencia';
+    default:
+      return method;
   }
 };

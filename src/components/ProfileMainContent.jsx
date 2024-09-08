@@ -3,109 +3,84 @@ import {
   Box,
   Typography,
   Grid,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Card,
   CardContent,
   Skeleton,
+  Divider,
 } from '@mui/material';
+import {
+  MonetizationOn,
+  TrendingUp,
+  Today,
+  AccountBalanceWallet,
+} from '@mui/icons-material';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
-import { formatCurrency } from '../pages/SalesHistory';
 
 const ProfileMainContent = () => {
   const {
     userData: { user },
   } = useAuth();
-  const [sales, setSales] = useState([]);
+
   const [loading, setLoading] = useState(true); // Estado para el skeleton
   const [metrics, setMetrics] = useState({
-    salesToday: 0,
-    totalRevenueToday: 0,
+    totalRevenue: 0,
+    totalSales: 0,
+    comission: 0,
     commissionToday: 0,
-    salesThisMonth: 0,
-    totalRevenueThisMonth: 0,
-    commissionThisMonth: 0,
-  });
-  const [paymentMethodCounts, setPaymentMethodCounts] = useState({
-    cash: { count: 0, totalAmount: 0 },
-    'credit card': { count: 0, totalAmount: 0 },
-    'debit card': { count: 0, totalAmount: 0 },
-    paypal: { count: 0, totalAmount: 0 },
+    averageSale: 0,
+    totalSalesToday: 0,
+    totalRevenueToday: 0,
+    averageSaleToday: 0,
   });
 
   useEffect(() => {
-    const fetchSales = async () => {
+    const fetchMetrics = async () => {
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_API_URL}/stores/${
             import.meta.env.VITE_STORE_ID
-          }/sales?seller=${user._id}`,
+          }/own-sales?seller=${user._id}`,
         );
-
-        const { sales: salesData, paymentMethodCounts: pmCounts } =
-          response.data.sales;
-
-        const today = new Date().toISOString().slice(0, 10);
-        const currentMonth = new Date().getMonth();
-        let commissionThisMonth = 0;
-
-        salesData.forEach((sale) => {
-          const saleDate = new Date(sale.date);
-          const saleTotal = sale.totalAmount;
-
-          // Comisión mensual
-          if (saleDate.getMonth() === currentMonth) {
-            commissionThisMonth += Math.floor(saleTotal * 0.05);
-          }
-        });
-
-        setSales(salesData);
-        setMetrics((prevMetrics) => ({
-          ...prevMetrics,
-          commissionThisMonth,
-        }));
-        setPaymentMethodCounts(pmCounts);
-      } catch (error) {
-        console.error('Error fetching sales:', error);
-      } finally {
-        setTimeout(() => setLoading(false), 1000); // Stop loading after fetching sales
-      }
-    };
-
-    const fetchMetrics = async () => {
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/sales/metrics/${user._id}`,
-        );
-        setMetrics((prevMetrics) => ({
-          ...prevMetrics,
-          ...response.data,
-        }));
+        setMetrics(response.data); // Actualizar con los datos del API
       } catch (error) {
         console.error('Error fetching metrics:', error);
+      } finally {
+        setLoading(false); // Desactivar skeleton al finalizar la carga
       }
     };
-
-    fetchSales();
     fetchMetrics();
   }, [user]);
 
-  const dictMethod = (method) => {
-    switch (method) {
-      case 'credit card':
-        return 'Transbank';
-      case 'cash':
-        return 'Efectivo';
-      case 'transfer':
-        return 'Transferencia';
-    }
-  };
+  // Componente para mostrar una métrica
+  const MetricCard = ({ title, value, subtitle, icon }) => (
+    <Card sx={{ bgcolor: 'background.paper', color: 'text.primary' }}>
+      <CardContent>
+        <Box display='flex' alignItems='center' justifyContent='space-between'>
+          <Box>
+            <Typography variant='h6' gutterBottom>
+              {title}
+            </Typography>
+            {loading ? (
+              <Skeleton variant='text' width={150} height={40} />
+            ) : (
+              <Typography variant='h4' sx={{ fontWeight: 'bold' }}>
+                {value}
+              </Typography>
+            )}
+            {loading ? (
+              <Skeleton variant='text' width={100} />
+            ) : (
+              <Typography variant='subtitle1' sx={{ color: 'text.secondary' }}>
+                {subtitle}
+              </Typography>
+            )}
+          </Box>
+          <Box sx={{ color: 'primary.main' }}>{icon}</Box>
+        </Box>
+      </CardContent>
+    </Card>
+  );
 
   return (
     <Box sx={{ p: 3 }}>
@@ -113,116 +88,73 @@ const ProfileMainContent = () => {
         Bienvenid@ {user?.name}
       </Typography>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <Card sx={{ bgcolor: 'primary.main', color: 'white' }}>
-            <CardContent>
-              <Typography variant='h6'>Ventas Hoy</Typography>
-              {loading ? (
-                <>
-                  <Skeleton variant='text' width={100} height={50} />
-                  <Skeleton variant='text' width={150} />
-                  <Skeleton variant='text' width={150} />
-                </>
-              ) : (
-                <>
-                  <Typography variant='h4' sx={{ fontWeight: 'bold' }}>
-                    {metrics.salesToday}
-                  </Typography>
-                  <Typography variant='subtitle1'>
-                    Ingresos: {formatCurrency(metrics.totalRevenueToday)}
-                  </Typography>
-                  <Typography variant='subtitle1'>
-                    Comisión: {formatCurrency(metrics.commissionToday)}
-                  </Typography>
-                </>
-              )}
-            </CardContent>
-          </Card>
+      <Grid container spacing={4}>
+        {/* Ventas Hoy */}
+        <Grid item xs={12} md={6} lg={4}>
+          <MetricCard
+            title='Ventas Hoy'
+            value={metrics.totalSalesToday}
+            subtitle={`Ingresos: ${metrics.totalRevenueToday}`}
+            icon={<Today sx={{ fontSize: 50 }} />}
+          />
         </Grid>
 
-        <Grid item xs={12} md={6}>
-          <Card sx={{ bgcolor: 'secondary.main', color: 'white' }}>
-            <CardContent>
-              <Typography variant='h6'>Ventas Este Mes</Typography>
-              {loading ? (
-                <>
-                  <Skeleton variant='text' width={100} height={50} />
-                  <Skeleton variant='text' width={150} />
-                  <Skeleton variant='text' width={150} />
-                </>
-              ) : (
-                <>
-                  <Typography variant='h4' sx={{ fontWeight: 'bold' }}>
-                    {metrics.salesThisMonth}
-                  </Typography>
-                  <Typography variant='subtitle1'>
-                    Ingresos: {formatCurrency(metrics.totalRevenueThisMonth)}
-                  </Typography>
-                  <Typography variant='subtitle1'>
-                    Comisión: {formatCurrency(metrics.commissionThisMonth)}
-                  </Typography>
-                </>
-              )}
-            </CardContent>
-          </Card>
+        {/* Comisión Hoy */}
+        <Grid item xs={12} md={6} lg={4}>
+          <MetricCard
+            title='Comisión Hoy'
+            value={metrics.commissionToday}
+            subtitle='Comisión generada hoy'
+            icon={<AccountBalanceWallet sx={{ fontSize: 50 }} />}
+          />
         </Grid>
 
-        {/* Ventas por Método de Pago */}
-        {/* <Grid item xs={12}>
-          <Card sx={{ mt: 2 }}>
-            <CardContent>
-              <Typography variant='h6'>Ventas por Método de Pago</Typography>
-              <TableContainer component={Paper} sx={{ mt: 2 }}>
-                <Table size='small'>
-                  <TableHead sx={{ bgcolor: 'primary.light' }}>
-                    <TableRow>
-                      <TableCell sx={{ color: 'primary.contrastText' }}>
-                        Método de Pago
-                      </TableCell>
-                      <TableCell sx={{ color: 'primary.contrastText' }}>
-                        Cantidad de Ventas
-                      </TableCell>
-                      <TableCell sx={{ color: 'primary.contrastText' }}>
-                        Total Recaudado
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {loading ? (
-                      <>
-                        <TableRow>
-                          <TableCell colSpan={3}>
-                            <Skeleton variant='rectangular' height={40} />
-                          </TableCell>
-                        </TableRow>
-                        <TableRow>
-                          <TableCell colSpan={3}>
-                            <Skeleton variant='rectangular' height={40} />
-                          </TableCell>
-                        </TableRow>
-                      </>
-                    ) : (
-                      Object.keys(paymentMethodCounts).map((method) => (
-                        <TableRow key={method}>
-                          <TableCell>{dictMethod(method)}</TableCell>
-                          <TableCell>
-                            {paymentMethodCounts[method].count}
-                          </TableCell>
-                          <TableCell>
-                            {formatCurrency(
-                              paymentMethodCounts[method].totalAmount,
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
-        </Grid> */}
+        {/* Promedio de Venta Hoy */}
+        <Grid item xs={12} md={6} lg={4}>
+          <MetricCard
+            title='Promedio de Venta Hoy'
+            value={metrics.averageSaleToday}
+            subtitle='Promedio de venta por transacción'
+            icon={<TrendingUp sx={{ fontSize: 50 }} />}
+          />
+        </Grid>
+
+        {/* Divider for clean layout */}
+        <Grid item xs={12}>
+          <Divider sx={{ my: 4 }} />
+        </Grid>
+
+        {/* Ingresos Totales */}
+        <Grid item xs={12} md={6} lg={4}>
+          <MetricCard
+            title='Ingresos Totales'
+            value={metrics.totalRevenue}
+            subtitle={`Total de Ventas: ${metrics.totalSales}`}
+            icon={<MonetizationOn sx={{ fontSize: 50 }} />}
+          />
+        </Grid>
+
+        {/* Comisión Total */}
+        <Grid item xs={12} md={6} lg={4}>
+          <MetricCard
+            title='Comisión Total'
+            value={metrics.comission}
+            subtitle='Comisión acumulada'
+            icon={<AccountBalanceWallet sx={{ fontSize: 50 }} />}
+          />
+        </Grid>
+
+        {/* Promedio por Venta General */}
+        <Grid item xs={12} md={6} lg={4}>
+          <MetricCard
+            title='Promedio por Venta General'
+            value={`$${Math.round(metrics.averageSale).toLocaleString(
+              'es-CL',
+            )} CLP`} // Formato sin decimales
+            subtitle='Promedio histórico por venta'
+            icon={<TrendingUp sx={{ fontSize: 50 }} />}
+          />
+        </Grid>
       </Grid>
     </Box>
   );
