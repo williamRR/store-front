@@ -9,11 +9,8 @@ import {
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useCart } from '../context/CartContext';
-import { toast } from 'react-toastify';
-import { useAuth } from '../context/AuthContext';
 
 const ProductCard = ({ item }) => {
-  const [hovered, setHovered] = useState(false);
   const { dispatch } = useCart();
 
   const capitalize = (str) => {
@@ -42,7 +39,7 @@ const ProductCard = ({ item }) => {
     <Card
       sx={{
         width: { xs: '45%', sm: '26%', md: '15%' },
-        margin: 1,
+        margin: 2,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
