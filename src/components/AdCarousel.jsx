@@ -1,18 +1,9 @@
-import React, { useState, useEffect } from 'react';
 import { Grid, Skeleton } from '@mui/material';
 import Carousel from 'react-material-ui-carousel';
 import { useStoreConfig } from '../context/StoreConfigContext';
 
-const AdCarousel = () => {
-  const { images = { carouselImages: [] } } = useStoreConfig(); // Valor predeterminado para images
-  const [loading, setLoading] = useState(true);
-
-  // Simular el tiempo de carga de las imágenes
-  useEffect(() => {
-    if (images?.carouselImages?.length > 0) {
-      setLoading(false);
-    }
-  }, [images.carouselImages]);
+const AdCarousel = ({ loading }) => {
+  const { images = { carouselImages: [] } } = useStoreConfig(); // Valor
 
   return (
     <Grid
