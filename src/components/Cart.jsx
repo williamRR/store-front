@@ -85,7 +85,7 @@ const Cart = () => {
     if (paymentMethod === 'transfer') paymentType = 3;
 
     const body = {
-      documentTypeId: 10,
+      documentTypeId: 1,
       emissionDate: Math.floor(new Date().getTime() / 1000),
       declareSii: 1,
       details,
