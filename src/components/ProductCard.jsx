@@ -9,9 +9,11 @@ import {
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useCart } from '../context/CartContext';
+import { useNavigate } from 'react-router-dom';
 
 const ProductCard = ({ item }) => {
   const { dispatch } = useCart();
+  const navigate = useNavigate();
 
   const capitalize = (str) => {
     if (!str) return '';
@@ -29,14 +31,21 @@ const ProductCard = ({ item }) => {
 
   const imageSrc = item.image ? item.image : 'https://via.placeholder.com/150';
 
-  const handleAddToCart = useCallback(() => {
-    console.log('Adding to cart:', item);
-    dispatch({ type: 'ADD_TO_CART', payload: item });
-    dispatch({ type: 'TOGGLE_CART' });
-  }, [item]);
+  const handleAddToCart = useCallback(
+    (e) => {
+      e.stopPropagation(); // Detiene la propagación del evento
+      dispatch({ type: 'ADD_TO_CART', payload: item });
+      dispatch({ type: 'TOGGLE_CART' });
+    },
+    [item, dispatch],
+  );
 
+  const navigateToProduct = () => {
+    navigate(`/product/${item._id}`);
+  };
   return (
     <Card
+      onClick={navigateToProduct}
       sx={{
         width: { xs: '45%', sm: '26%', md: '15%' },
         margin: 2,

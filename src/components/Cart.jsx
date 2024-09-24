@@ -83,9 +83,8 @@ const Cart = () => {
     let paymentType = 1;
     if (paymentMethod === 'transbank') paymentType = 2;
     if (paymentMethod === 'transfer') paymentType = 3;
-
     const body = {
-      documentTypeId: 1,
+      documentTypeId: import.meta.env.VITE_NODE_ENV === 'dev' ? 10 : 1,
       emissionDate: Math.floor(new Date().getTime() / 1000),
       details,
       declareSii: 1,
@@ -308,7 +307,7 @@ const Cart = () => {
             variant='subtitle1'
             sx={{ fontWeight: 'bold', color: 'green', textAlign: 'right' }}
           >
-            Total: {formatCurrency(totalAmount)}
+            Total: ${formatCurrency(totalAmount)}
           </Typography>
 
           <Button

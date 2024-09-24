@@ -29,8 +29,6 @@ import { useAuth } from '../context/AuthContext'; // Ajustar la ruta si es neces
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { useCart } from '../context/CartContext';
-import { toast } from 'react-toastify';
-import apiClient from '../axios.config';
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);

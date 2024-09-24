@@ -59,7 +59,6 @@ export const AuthProvider = ({ children }) => {
 
       const { accessToken, idToken, refreshToken } = data;
       const user = decodeToken(idToken);
-      console.log(user);
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('idToken', idToken);
       localStorage.setItem('refreshToken', refreshToken);

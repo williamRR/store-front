@@ -1,8 +1,19 @@
 import React, { useState } from 'react';
-import { Modal, Box, Typography, TextField, Button, Grid } from '@mui/material';
+import {
+  Modal,
+  Box,
+  Typography,
+  TextField,
+  Button,
+  Grid,
+  IconButton,
+  InputAdornment,
+} from '@mui/material';
 import { useForm, Controller } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 const AuthModal = ({ open, handleClose }) => {
   const {
@@ -15,24 +26,28 @@ const AuthModal = ({ open, handleClose }) => {
   const [view, setView] = useState('login'); // 'login', 'register', 'forgotPassword'
   const { login, register, forgotPassword } = useAuth();
 
+  // Estado para manejar la visibilidad de la contraseña
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+
   const onSubmit = async (data) => {
     try {
       if (view === 'login') {
         await login(data);
-
         handleClose();
       } else if (view === 'register') {
         const resp = await register(data);
         if (resp.success) {
-          setView('login');
+          toast.success('Registro exitoso, correo enviado');
           reset();
+          handleClose();
         } else {
-          toast.error(resp.message);
+          toast.error(resp?.data?.error);
         }
       } else if (view === 'forgotPassword') {
         await forgotPassword(data);
       }
-      handleClose();
     } catch (error) {
       setError('email', {
         type: 'manual',
@@ -77,12 +92,25 @@ const AuthModal = ({ open, handleClose }) => {
                 <TextField
                   {...field}
                   label='Contraseña'
-                  type='password'
+                  type={showPassword ? 'text' : 'password'}
                   variant='outlined'
                   error={!!errors.password}
                   helperText={errors.password?.message.toString()}
                   fullWidth
                   margin='normal'
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position='end'>
+                        <IconButton
+                          aria-label='toggle password visibility'
+                          onClick={handleClickShowPassword}
+                          edge='end'
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               )}
             />
@@ -101,7 +129,7 @@ const AuthModal = ({ open, handleClose }) => {
         return (
           <>
             <Controller
-              name='email '
+              name='email'
               control={control}
               rules={{ required: 'Correo requerido' }}
               defaultValue=''
@@ -126,26 +154,23 @@ const AuthModal = ({ open, handleClose }) => {
                 <TextField
                   {...field}
                   label='Contraseña'
-                  type='password'
+                  type={showPassword ? 'text' : 'password'}
                   variant='outlined'
                   fullWidth
                   margin='normal'
-                />
-              )}
-            />
-            <Controller
-              name='confirmPassword'
-              control={control}
-              defaultValue=''
-              rules={{ required: 'Confirmar contraseña requerida' }}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label='Confirmar Contraseña'
-                  type='password'
-                  variant='outlined'
-                  fullWidth
-                  margin='normal'
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position='end'>
+                        <IconButton
+                          aria-label='toggle password visibility'
+                          onClick={handleClickShowPassword}
+                          edge='end'
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               )}
             />

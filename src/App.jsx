@@ -12,6 +12,7 @@ import Login from './pages/Login';
 import Profile from './pages/Profile';
 import SalesHistory from './pages/SalesHistory';
 import PrivateRoute from './components/PrivateRoute'; // Importa tu componente PrivateRoute
+import ProductDetail from './pages/ProductDetail';
 
 function AppContent() {
   const { loading } = useStoreConfig();
@@ -54,6 +55,8 @@ function AppContent() {
           path='/sales-history'
           element={<PrivateRoute element={SalesHistory} />}
         />
+        <Route path='/product/:productId' element={<ProductDetail />} />
+        <Route path='*' element={<h1>Not Found</h1>} />
       </Routes>
     </>
   );
@@ -61,12 +64,9 @@ function AppContent() {
 
 function App() {
   return (
-    console.count(),
-    (
-      <StoreConfigProvider>
-        <AppContent />
-      </StoreConfigProvider>
-    )
+    <StoreConfigProvider>
+      <AppContent />
+    </StoreConfigProvider>
   );
 }
 
