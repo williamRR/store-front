@@ -87,8 +87,8 @@ const Cart = () => {
     const body = {
       documentTypeId: 1,
       emissionDate: Math.floor(new Date().getTime() / 1000),
-      declareSii: 1,
       details,
+      declareSii: 1,
       payments: [
         {
           paymentTypeId: paymentType,
