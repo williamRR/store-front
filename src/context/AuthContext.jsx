@@ -65,8 +65,7 @@ export const AuthProvider = ({ children }) => {
       setUserData(user);
       setAccessToken(accessToken);
       setIsAuthenticated(true);
-
-      toast.success(`Bienvenido ${user.email}`);
+      toast.success(`Bienvenido ${user.user.name}`);
     } catch (error) {
       handleAuthError(error);
     }
@@ -143,13 +142,20 @@ export const AuthProvider = ({ children }) => {
     toast.info('Sesión cerrada.');
   };
 
-  const handleAuthError = (error, redirectOnExpire = false) => {
+  const handleAuthError = (error) => {
     console.error('Authentication error:', error);
-    toast.error(`Error: ${error.response?.data?.message || error.message}`);
-    logout();
-    if (redirectOnExpire) {
-      navigate('/login');
+    switch (error.response?.status) {
+      case 401:
+        toast.error('Credenciales inválidas.');
+        break;
+      case 403:
+        toast.error('Acceso denegado.');
+        break;
+      default:
+        toast.error('Error de autenticación.');
+        break;
     }
+    throw error;
   };
 
   return (
