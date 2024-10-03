@@ -265,7 +265,91 @@ const SalesHistory = () => {
                     {formatCurrency(sale.commission)}
                   </TableCell>
                   <TableCell sx={{ padding: '6px', display: 'flex', gap: 1 }}>
-                    <Tooltip title='Ver Detalles' arrow placement='top'>
+                    <Tooltip
+                      title={
+                        <Box
+                          sx={{
+                            padding: 2,
+                            minWidth: 250,
+                            backgroundColor: 'black',
+                          }}
+                        >
+                          {sale.products.map((product) => (
+                            <Box
+                              key={product._id}
+                              sx={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                mb: 1,
+                              }}
+                            >
+                              <img
+                                src={product.image}
+                                alt={product.name}
+                                style={{
+                                  width: 40,
+                                  height: 40,
+                                  marginRight: 8,
+                                  borderRadius: '4px',
+                                }}
+                              />
+                              <Box sx={{ flexGrow: 1 }}>
+                                <Typography
+                                  variant='body2'
+                                  sx={{ fontWeight: 'bold' }}
+                                >
+                                  {product.name}
+                                </Typography>
+                                <Typography
+                                  variant='body2'
+                                  color='text.secondary'
+                                >
+                                  Cantidad: {product.quantity} | Precio: $
+                                  {product.price}
+                                </Typography>
+                              </Box>
+                              <Typography
+                                variant='body2'
+                                sx={{
+                                  marginLeft: 'auto',
+                                  fontWeight: 'bold',
+                                }}
+                              >
+                                {formatCurrency(
+                                  product.price * product.quantity,
+                                )}
+                              </Typography>
+                            </Box>
+                          ))}
+                          <Divider sx={{ my: 1 }} />
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                            }}
+                          >
+                            <Typography
+                              variant='body2'
+                              sx={{ fontWeight: 'bold' }}
+                            >
+                              Total Venta:
+                            </Typography>
+                            <Typography
+                              variant='body2'
+                              sx={{
+                                fontWeight: 'bold',
+                                color: 'green',
+                              }}
+                            >
+                              {formatCurrency(sale.totalAmount)}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      }
+                      arrow
+                      placement='top'
+                    >
                       <IconButton size='small' color='primary'>
                         <VisibilityIcon />
                       </IconButton>
