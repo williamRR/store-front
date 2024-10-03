@@ -16,6 +16,10 @@ import {
   IconButton,
   Divider,
   Skeleton,
+  TextField, // Importar TextField para el filtro de fechas
+  Card,
+  CardContent,
+  Grid,
 } from '@mui/material';
 import {
   Visibility as VisibilityIcon,
@@ -29,8 +33,16 @@ const SalesHistory = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalSales, setTotalSales] = useState(0);
-  const [sort, setSort] = useState('date'); // Estado para saber qué columna se está ordenando
-  const [order, setOrder] = useState('desc'); // Estado para el orden asc o desc
+  const [sort, setSort] = useState('date');
+  const [order, setOrder] = useState('desc');
+
+  // Estado para el filtro de fechas
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  // Estados para las nuevas métricas
+  const [totalSalesAmount, setTotalSalesAmount] = useState(null);
+  const [totalCommissions, setTotalCommissions] = useState(null);
 
   const {
     userData: { user },
@@ -38,7 +50,7 @@ const SalesHistory = () => {
 
   useEffect(() => {
     fetchSales();
-  }, [page, rowsPerPage, sort, order]);
+  }, [page, rowsPerPage, sort, order, startDate, endDate]);
 
   const fetchSales = async () => {
     setLoading(true);
@@ -46,13 +58,20 @@ const SalesHistory = () => {
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/stores/${
           import.meta.env.VITE_STORE_ID
-        }/sales?seller=${user._id}&page=${
+        }/saleman-sales?seller=${user._id}&page=${
           page + 1
-        }&limit=${rowsPerPage}&sort=${sort}&order=${order}`,
+        }&limit=${rowsPerPage}&sort=${sort}&order=${order}&startDate=${startDate}&endDate=${endDate}`,
       );
-      const { sales: salesData, totalSales } = response.data;
+      const {
+        sales: salesData,
+        totalSales,
+        totalSalesAmount,
+        totalCommissions,
+      } = response.data;
       setSales(salesData);
       setTotalSales(totalSales);
+      setTotalSalesAmount(totalSalesAmount);
+      setTotalCommissions(totalCommissions);
     } catch (error) {
       console.error('Error fetching sales:', error);
     } finally {
@@ -66,14 +85,22 @@ const SalesHistory = () => {
 
   const handleRowsPerPageChange = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0); // Reiniciar la página cuando se cambien las filas por página
+    setPage(0);
   };
 
-  // Función para manejar el cambio de ordenamiento
   const handleSortChange = (property) => {
-    const isAsc = sort === property && order === 'asc'; // Verificar si ya está en ascendente
-    setOrder(isAsc ? 'desc' : 'asc'); // Alternar entre ascendente y descendente
-    setSort(property); // Establecer la columna que se está ordenando
+    const isAsc = sort === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setSort(property);
+  };
+
+  // Funciones para manejar el cambio de fechas
+  const handleStartDateChange = (event) => {
+    setStartDate(event.target.value);
+  };
+
+  const handleEndDateChange = (event) => {
+    setEndDate(event.target.value);
   };
 
   return (
@@ -82,11 +109,88 @@ const SalesHistory = () => {
         Historial de Ventas
       </Typography>
 
+      {/* Filtro de fechas */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-around', mb: 2 }}>
+        <TextField
+          label='Fecha inicio'
+          type='date'
+          value={startDate}
+          onChange={handleStartDateChange}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
+        <TextField
+          label='Fecha fin'
+          type='date'
+          value={endDate}
+          onChange={handleEndDateChange}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
+      </Box>
+
+      {/* Resumen de ventas */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              {loading ? (
+                <Skeleton variant='rectangular' height={80} />
+              ) : (
+                <>
+                  <Typography variant='h6' color='textSecondary' gutterBottom>
+                    Total de Ventas
+                  </Typography>
+                  <Typography variant='h4'>{totalSales}</Typography>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              {loading ? (
+                <Skeleton variant='rectangular' height={80} />
+              ) : (
+                <>
+                  <Typography variant='h6' color='textSecondary' gutterBottom>
+                    Total Ingresos
+                  </Typography>
+                  <Typography variant='h4'>
+                    {totalSalesAmount ? formatCurrency(totalSalesAmount) : '—'}
+                  </Typography>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <CardContent>
+              {loading ? (
+                <Skeleton variant='rectangular' height={80} />
+              ) : (
+                <>
+                  <Typography variant='h6' color='textSecondary' gutterBottom>
+                    Total Comisiones
+                  </Typography>
+                  <Typography variant='h4'>
+                    {totalCommissions ? formatCurrency(totalCommissions) : '—'}
+                  </Typography>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+
       <TableContainer component={Paper} sx={{ mt: 2 }}>
         <Table size='small' sx={{ minWidth: 650, padding: '8px' }}>
           <TableHead sx={{ bgcolor: 'primary.light' }}>
             <TableRow>
-              {/* Fecha con ordenamiento */}
               <TableCell
                 sx={{ color: 'primary.contrastText', padding: '6px' }}
                 onClick={() => handleSortChange('date')}
@@ -97,12 +201,9 @@ const SalesHistory = () => {
                     <ArrowUpward fontSize='small' sx={{ color: 'white' }} />
                   ) : sort === 'date' && order === 'desc' ? (
                     <ArrowDownward fontSize='small' sx={{ color: 'white' }} />
-                  ) : null}{' '}
-                  {/* Mostrar solo si la columna activa es "date" */}
+                  ) : null}
                 </IconButton>
               </TableCell>
-
-              {/* Total con ordenamiento */}
               <TableCell
                 sx={{ color: 'primary.contrastText', padding: '6px' }}
                 onClick={() => handleSortChange('totalAmount')}
@@ -113,22 +214,15 @@ const SalesHistory = () => {
                     <ArrowUpward fontSize='small' sx={{ color: 'white' }} />
                   ) : sort === 'totalAmount' && order === 'desc' ? (
                     <ArrowDownward fontSize='small' sx={{ color: 'white' }} />
-                  ) : null}{' '}
-                  {/* Mostrar solo si la columna activa es "totalAmount" */}
+                  ) : null}
                 </IconButton>
               </TableCell>
-
-              {/* Medio de pago */}
               <TableCell sx={{ color: 'primary.contrastText', padding: '6px' }}>
                 Medio de pago
               </TableCell>
-
-              {/* Comisión */}
               <TableCell sx={{ color: 'primary.contrastText', padding: '6px' }}>
                 Comisión
               </TableCell>
-
-              {/* Acciones */}
               <TableCell sx={{ color: 'primary.contrastText', padding: '6px' }}>
                 Acciones
               </TableCell>
@@ -167,95 +261,22 @@ const SalesHistory = () => {
                     {dictMethod(sale.paymentMethod)}
                   </TableCell>
                   <TableCell sx={{ padding: '6px' }}>
-                    {formatCurrency(calculateCommission(sale.totalAmount))}
+                    {/* {formatCurrency(calculateCommission(sale.totalAmount))} */}
+                    {formatCurrency(sale.commission)}
                   </TableCell>
-                  <TableCell sx={{ padding: '6px' }}>
-                    <Tooltip
-                      title={
-                        <Box
-                          sx={{
-                            padding: 2,
-                            minWidth: 250,
-                            backgroundColor: 'black',
-                          }}
-                        >
-                          {sale.products.map((product) => (
-                            <Box
-                              key={product._id}
-                              sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                mb: 1,
-                              }}
-                            >
-                              <img
-                                src={product.image}
-                                alt={product.name}
-                                style={{
-                                  width: 40,
-                                  height: 40,
-                                  marginRight: 8,
-                                  borderRadius: '4px',
-                                }}
-                              />
-                              <Box sx={{ flexGrow: 1 }}>
-                                <Typography
-                                  variant='body2'
-                                  sx={{ fontWeight: 'bold' }}
-                                >
-                                  {product.name}
-                                </Typography>
-                                <Typography
-                                  variant='body2'
-                                  color='text.secondary'
-                                >
-                                  Cantidad: {product.quantity} | Precio: $
-                                  {product.price}
-                                </Typography>
-                              </Box>
-                              <Typography
-                                variant='body2'
-                                sx={{
-                                  marginLeft: 'auto',
-                                  fontWeight: 'bold',
-                                }}
-                              >
-                                {formatCurrency(
-                                  product.price * product.quantity,
-                                )}
-                              </Typography>
-                            </Box>
-                          ))}
-                          <Divider sx={{ my: 1 }} />
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                            }}
-                          >
-                            <Typography
-                              variant='body2'
-                              sx={{ fontWeight: 'bold' }}
-                            >
-                              Total Venta:
-                            </Typography>
-                            <Typography
-                              variant='body2'
-                              sx={{
-                                fontWeight: 'bold',
-                                color: 'green',
-                              }}
-                            >
-                              {formatCurrency(sale.totalAmount)}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      }
-                      arrow
-                      placement='top'
-                    >
+                  <TableCell sx={{ padding: '6px', display: 'flex', gap: 1 }}>
+                    <Tooltip title='Ver Detalles' arrow placement='top'>
                       <IconButton size='small' color='primary'>
+                        <VisibilityIcon />
+                      </IconButton>
+                    </Tooltip>
+                    {/* Nuevo botón para abrir el PDF de la boleta */}
+                    <Tooltip title='Ver Boleta' arrow placement='top'>
+                      <IconButton
+                        size='small'
+                        color='primary'
+                        onClick={() => window.open(sale.urlPdf, '_blank')}
+                      >
                         <VisibilityIcon />
                       </IconButton>
                     </Tooltip>
@@ -281,8 +302,11 @@ const SalesHistory = () => {
 export default SalesHistory;
 
 // Función de formato de moneda
-export const formatCurrency = (amount) => {
-  return `$${amount.toLocaleString('es-CL')} CLP`;
+const formatCurrency = (amount) => {
+  // Redondear hacia abajo (sin centavos)
+  const roundedAmount = Math.floor(amount);
+
+  return `$${roundedAmount.toLocaleString('es-CL')} CLP`;
 };
 
 // Función para calcular la comisión
