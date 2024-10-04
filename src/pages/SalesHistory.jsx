@@ -393,11 +393,6 @@ const formatCurrency = (amount) => {
   return `$${roundedAmount.toLocaleString('es-CL')} CLP`;
 };
 
-// Función para calcular la comisión
-const calculateCommission = (totalAmount) => {
-  return Math.floor(totalAmount * 0.05).toLocaleString('es-CL');
-};
-
 // Función para traducir el método de pago
 const dictMethod = (method) => {
   switch (method) {

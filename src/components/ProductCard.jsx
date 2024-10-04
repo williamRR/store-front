@@ -46,8 +46,8 @@ const ProductCard = ({ item }) => {
 
   // Determinar el color del borde según el stock y si es dropshipped
   const getBorderColor = () => {
-    if (item.totalStock === 0) return 'red'; // Sin stock
     if (item.isDropshipped) return 'yellow'; // Dropshipped
+    if (item.totalStock === 0) return 'red'; // Sin stock
     return 'green'; // Con stock
   };
 
