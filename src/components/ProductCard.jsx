@@ -43,6 +43,14 @@ const ProductCard = ({ item }) => {
   const navigateToProduct = () => {
     navigate(`/product/${item._id}`);
   };
+
+  // Determinar el color del borde según el stock y si es dropshipped
+  const getBorderColor = () => {
+    if (item.totalStock === 0) return 'red'; // Sin stock
+    if (item.isDropshipped) return 'yellow'; // Dropshipped
+    return 'green'; // Con stock
+  };
+
   return (
     <Card
       onClick={navigateToProduct}
@@ -61,6 +69,7 @@ const ProductCard = ({ item }) => {
           backgroundColor: '#f9f9f9',
         },
         boxShadow: 2,
+        border: `2px solid ${getBorderColor()}`, // Aplicar el color del borde
       }}
     >
       <CardActionArea>
