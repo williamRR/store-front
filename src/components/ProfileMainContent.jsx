@@ -18,9 +18,7 @@ import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
 const ProfileMainContent = () => {
-  const {
-    userData: { user },
-  } = useAuth();
+  const { currentUser: user } = useAuth();
 
   const [loading, setLoading] = useState(true); // Estado para el skeleton
   const [metrics, setMetrics] = useState({
@@ -35,6 +33,7 @@ const ProfileMainContent = () => {
   });
 
   useEffect(() => {
+    if (user.role === 'Customer') return; // Solo para vendedores
     const fetchMetrics = async () => {
       try {
         const response = await axios.get(
@@ -82,6 +81,7 @@ const ProfileMainContent = () => {
     </Card>
   );
 
+  if (user.role === 'Customer') return <CustomerMainProfile />; // Ocultar contenido para clientes
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant='h4' gutterBottom>
@@ -156,6 +156,20 @@ const ProfileMainContent = () => {
           />
         </Grid>
       </Grid>
+    </Box>
+  );
+};
+
+const CustomerMainProfile = () => {
+  return (
+    <Box sx={{ p: 3 }}>
+      <Typography variant='h4' gutterBottom>
+        Bienvenid@ Cliente
+      </Typography>
+      <Typography variant='body1'>
+        En esta sección podrás ver tus compras, direcciones y otros detalles de
+        tu perfil.
+      </Typography>
     </Box>
   );
 };

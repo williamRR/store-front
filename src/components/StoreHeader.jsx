@@ -131,26 +131,6 @@ const StoreHeader = () => {
               >
                 <AccountCircle />
               </IconButton>
-              {/* {isAuthenticated && (
-                <Menu
-                  id='menu-appbar'
-                  anchorEl={anchorEl}
-                  anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'left',
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  open={Boolean(anchorEl)}
-                  onClose={handleClose}
-                >
-                  <MenuItem onClick={handleProfile}>Mi Perfil</MenuItem>
-                  <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
-                </Menu>
-              )} */}
             </Grid>
           </Grid>
         </Toolbar>

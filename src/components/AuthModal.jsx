@@ -34,31 +34,59 @@ const AuthModal = ({ open, handleClose }) => {
   const onSubmit = async (data) => {
     try {
       if (view === 'login') {
-        await login(data);
+        // Iniciar sesión
+        await login(data.email, data.password);
+        toast.success('Inicio de sesión exitoso');
+        reset();
         handleClose();
       } else if (view === 'register') {
-        const resp = await register(data);
-        if (resp.success) {
-          toast.success('Registro exitoso, correo enviado');
-          reset();
-          handleClose();
-        } else {
-          toast.error(resp?.data?.error);
-        }
+        // Registro de usuario
+        await register(data.email, data.password);
+        toast.success('Registro exitoso, verifica tu correo');
+        // reset();
+        // handleClose();
+        setView('login');
       } else if (view === 'forgotPassword') {
-        await forgotPassword(data);
+        // Recuperación de contraseña
+        await forgotPassword(data.email);
+        toast.success('Correo de recuperación enviado');
+        setView('login');
+        reset();
       }
     } catch (error) {
+      handleError(error);
+    }
+  };
+
+  const handleError = (error) => {
+    console.log(error.message);
+    if (error.message === 'Firebase: Error (auth/email-already-in-use).') {
       setError('email', {
         type: 'manual',
-        message: 'Credenciales inválidas',
+        message: 'Este correo ya está registrado',
       });
+    } else if (
+      error.message.includes('Firebase: Error (auth/invalid-credential).')
+    ) {
       setError('password', {
         type: 'manual',
-        message: 'Credenciales inválidas',
+        message: 'Contraseña incorrecta',
       });
-      console.error('Error handling submit:', error);
+    } else if (
+      error.message ===
+      'Por favor, verifica tu correo electrónico para continuar.'
+    ) {
+      setError('email', {
+        type: 'manual',
+        message: 'Verifica tu casilla de correo',
+      });
+    } else {
+      setError('email', {
+        type: 'manual',
+        message: 'Error desconocido. Verifica tus datos.',
+      });
     }
+    console.error('Error handling submit:', error);
   };
 
   const renderForm = () => {

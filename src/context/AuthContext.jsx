@@ -1,180 +1,170 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { toast } from 'react-toastify';
-import apiClient from '../axios.config';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { initializeApp } from 'firebase/app';
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  sendEmailVerification,
+  signOut,
+} from 'firebase/auth';
+import axios from 'axios';
 
+const firebaseConfig = {
+  apiKey: 'AIzaSyCn5ZgUFZhmVmSNcHSK8sxq4jBIKGD777w',
+  authDomain: 'ecommerce-2e3dc.firebaseapp.com',
+  projectId: 'ecommerce-2e3dc',
+  storageBucket: 'ecommerce-2e3dc.appspot.com',
+  messagingSenderId: '916723138356',
+  appId: '1:916723138356:web:7837bdedadc5e02b252f61',
+  measurementId: 'G-3WMDPN562N',
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const AuthContext = createContext();
 
-function decodeToken(token) {
-  if (!token) return null; // Ensure token exists
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join(''),
-    );
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error('Error decoding token:', error);
-    return null;
-  }
-}
+// Hook para usar el AuthContext en otros componentes
+export const useAuth = () => useContext(AuthContext);
 
-const urlBase = `${import.meta.env.VITE_API_URL}/auth/store/${
-  import.meta.env.VITE_STORE_ID
-}/`;
-
+// AuthProvider que envuelve tu aplicación
 export const AuthProvider = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userData, setUserData] = useState({});
-  const [accessToken, setAccessToken] = useState(
-    localStorage.getItem('accessToken'),
-  );
+  // Registrar usuario
+  const register = async (email, password) => {
+    try {
+      // Paso 1: Registrar el usuario en Firebase Authentication
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      const user = userCredential.user;
 
-  useEffect(() => {
-    const storedIdToken = localStorage.getItem('idToken');
-    if (storedIdToken) {
-      const userInfo = decodeToken(storedIdToken);
-      console.log('userInfo', userInfo);
-      if (userInfo && new Date() < new Date(userInfo.exp * 1000)) {
-        setAccessToken(localStorage.getItem('accessToken'));
-        setUserData(userInfo);
-        setIsAuthenticated(true);
-      } else {
-        logout(); // Automatically log out if token is invalid/expired
-      }
-    } else {
-      // setLoading(false);
+      // Paso 2: Enviar el correo de verificación (opcional)
+      await sendEmailVerification(user);
+
+      // Paso 3: Hacer una solicitud a tu backend para asignar el rol y registrar en tu base de datos
+      const newUser = await axios.post(
+        `${import.meta.env.VITE_API_URL}/stores/${
+          import.meta.env.VITE_STORE_ID
+        }/register`,
+        {
+          uid: user.uid, // Usamos el UID generado por Firebase
+          email: user.email,
+          role: 'Customer', // Rol que quieres asignar
+        },
+      );
+
+      return newUser; // Retorna la respuesta del backend
+    } catch (error) {
+      console.log(error);
+      setError(error.message);
+      throw error;
     }
+  };
+
+  // Iniciar sesión
+  const login = async (email, password) => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      const user = userCredential.user;
+
+      // Obtener los custom claims, incluyendo el rol
+      const idTokenResult = await user.getIdTokenResult();
+      const role = idTokenResult.claims.role;
+
+      // Verificar si el correo está verificado
+      if (!user.emailVerified) {
+        throw new Error(
+          'Por favor, verifica tu correo electrónico para continuar.',
+        );
+      }
+
+      // Obtener el ID token del usuario para futuras autenticaciones
+      const idToken = await user.getIdToken();
+      const url = `${import.meta.env.VITE_API_URL}/stores/${
+        import.meta.env.VITE_STORE_ID
+      }/users/${user.email}`;
+      const { data } = await axios.get(url);
+      console.log(data);
+      // Crear el objeto a almacenar con los datos importantes
+      const userInfo = {
+        _id: data._id,
+        email: user.email,
+        uid: user.uid,
+        role: role, // Añadir el rol del usuario
+        emailVerified: user.emailVerified,
+        idToken,
+        refreshToken: user.refreshToken, // Este es el refresh token que puedes usar para renovar el token de acceso
+      };
+
+      // Guardar la información del usuario en Local Storage o Session Storage
+      localStorage.setItem('user', JSON.stringify(userInfo)); // O sessionStorage según tus necesidades
+      setIsAuthenticated(true);
+      setCurrentUser(userInfo); // Establecer el estado del usuario actual
+      return userInfo; // Devolver los datos almacenados
+    } catch (error) {
+      // Asegúrate de manejar el error adecuadamente en tu aplicación
+      console.error('Error iniciando sesión:', error.message);
+      throw new Error('No se pudo iniciar sesión. Verifica tus credenciales.');
+    }
+  };
+
+  // Restablecer contraseña
+  const forgotPassword = async (email) => {
+    try {
+      await sendPasswordResetEmail(auth, email); // Llamada correcta en Firebase v9
+    } catch (error) {
+      setError(error.message);
+      throw error;
+    }
+  };
+
+  // Cerrar sesión
+  const logout = async () => {
+    try {
+      setIsAuthenticated(false);
+      await signOut(auth); // Llamada correcta en Firebase v9
+    } catch (error) {
+      setError(error.message);
+      throw error;
+    }
+  };
+
+  // Verificar si el usuario está autenticado y establecer el estado
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setCurrentUser(user);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const login = async (formData) => {
-    try {
-      const url = `${urlBase}login`;
-      const { data } = await apiClient.post(url, formData, {
-        headers: { 'Content-Type': 'application/json' },
-      });
+  // El valor que se expone al resto de la aplicación
+  const value = {
+    currentUser,
+    error,
+    register,
+    isAuthenticated,
 
-      const { accessToken, idToken, refreshToken } = data;
-      const user = decodeToken(idToken);
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('idToken', idToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      setUserData(user);
-      setAccessToken(accessToken);
-      setIsAuthenticated(true);
-      toast.success(`Bienvenido ${user.user.name}`);
-    } catch (error) {
-      handleAuthError(error);
-    }
-  };
-
-  const refreshAccessToken = async () => {
-    try {
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (!refreshToken) throw new Error('No refresh token available');
-
-      const url = `${urlBase}refresh-token`;
-      const { data } = await apiClient.post(url, { refreshToken });
-
-      const { accessToken, idToken } = data;
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('idToken', idToken);
-
-      setAccessToken(accessToken);
-      setUserData(decodeToken(idToken));
-      setIsAuthenticated(true);
-    } catch (error) {
-      handleAuthError(error, true);
-    }
-  };
-
-  useEffect(() => {
-    if (accessToken) {
-      const decodedToken = decodeToken(accessToken);
-      const tokenExpirationTime = decodedToken?.exp * 1000 - Date.now() - 60000;
-
-      if (tokenExpirationTime > 0) {
-        const timer = setTimeout(refreshAccessToken, tokenExpirationTime);
-        return () => clearTimeout(timer);
-      } else {
-        refreshAccessToken(); // Immediately refresh if token expired
-      }
-    }
-  }, [accessToken]);
-
-  const register = async (formData) => {
-    try {
-      const url = `${urlBase}register`;
-      await apiClient.post(url, formData, {
-        headers: { 'Content-Type': 'application/json' },
-      });
-      return {
-        success: true,
-        message: 'Registro exitoso. Ahora puede iniciar sesión.',
-      };
-    } catch (error) {
-      return { success: false, message: `Error: ${error.message}` };
-    }
-  };
-
-  const forgotPassword = async (formData) => {
-    try {
-      const url = `${urlBase}forgot-password`;
-      await apiClient.post(url, formData, {
-        headers: { 'Content-Type': 'application/json' },
-      });
-      toast.success('Correo de recuperación enviado.');
-    } catch (error) {
-      toast.error(`Error: ${error.message}`);
-    }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('idToken');
-    localStorage.removeItem('refreshToken');
-    setIsAuthenticated(false);
-    setAccessToken(null);
-    setUserData({});
-    toast.info('Sesión cerrada.');
-  };
-
-  const handleAuthError = (error) => {
-    console.error('Authentication error:', error);
-    switch (error.response?.status) {
-      case 401:
-        toast.error('Credenciales inválidas.');
-        break;
-      case 403:
-        toast.error('Acceso denegado.');
-        break;
-      default:
-        toast.error('Error de autenticación.');
-        break;
-    }
-    throw error;
+    login,
+    forgotPassword,
+    sendEmailVerification,
+    logout,
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        userData,
-        isAuthenticated,
-        login,
-        logout,
-        register,
-        forgotPassword,
-        accessToken,
-      }}
-    >
-      {children}
+    <AuthContext.Provider value={value}>
+      {!loading && children}
     </AuthContext.Provider>
   );
-};
-
-export const useAuth = () => {
-  return useContext(AuthContext);
 };
