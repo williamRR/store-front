@@ -4,9 +4,9 @@ import ProfileSidebar from '../components/ProfileSidebar';
 import { Box } from '@mui/material';
 
 const PrivateRoute = ({ element: Component }) => {
-  const { isAuthenticated } = useAuth();
+  const { currentUser } = useAuth();
 
-  return isAuthenticated ? (
+  return currentUser ? (
     <Box sx={{ display: 'flex' }}>
       <ProfileSidebar />
       <Box sx={{ flexGrow: 1 }}>

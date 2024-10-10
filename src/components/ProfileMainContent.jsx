@@ -19,7 +19,7 @@ import axios from 'axios';
 
 const ProfileMainContent = () => {
   const { currentUser: user } = useAuth();
-
+  console.log(useAuth());
   const [loading, setLoading] = useState(true); // Estado para el skeleton
   const [metrics, setMetrics] = useState({
     totalRevenue: 0,
@@ -33,6 +33,7 @@ const ProfileMainContent = () => {
   });
 
   useEffect(() => {
+    console.log({ user });
     if (user.role === 'Customer') return; // Solo para vendedores
     const fetchMetrics = async () => {
       try {

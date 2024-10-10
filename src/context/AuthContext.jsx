@@ -31,9 +31,52 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  // Registrar usuario
+  const [error, setError] = useState(null);
+
+  // Guardar los datos del usuario en LocalStorage después de iniciar sesión o registrarse
+  // const storeUserInLocalStorage = (user) => {
+  //   localStorage.setItem('user', JSON.stringify(user));
+  // };
+
+  // Iniciar sesión
+  const login = async (email, password) => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
+      const user = userCredential.user;
+      if (!user.emailVerified) {
+        throw new Error('Verifica tu correo electrónico para continuar.');
+      }
+      // Obtener los custom claims del usuario (incluye el rol)
+      const idTokenResult = await user.getIdTokenResult();
+      const role = idTokenResult.claims.role || 'Customer'; // Default a 'Customer' si no hay rol asignado
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_API_URL}/stores/${
+          import.meta.env.VITE_STORE_ID
+        }/users/${user.email}`,
+      );
+      const { _id, addresses } = data;
+      // Establecer el usuario en el estado local con el rol
+      setCurrentUser({
+        _id,
+        addresses,
+        uid: user.uid,
+        email: user.email,
+        role: role,
+        emailVerified: user.emailVerified,
+        idToken: idTokenResult.token,
+        refreshToken: user.refreshToken,
+      });
+    } catch (error) {
+      console.error('Error iniciando sesión:', error);
+      throw new Error('No se pudo iniciar sesión. Verifica tus credenciales.');
+    }
+  };
+
   const register = async (email, password) => {
     try {
       // Paso 1: Registrar el usuario en Firebase Authentication
@@ -49,7 +92,8 @@ export const AuthProvider = ({ children }) => {
 
       // Paso 3: Hacer una solicitud a tu backend para asignar el rol y registrar en tu base de datos
       const newUser = await axios.post(
-        `${import.meta.env.VITE_API_URL}/stores/${
+        `
+        ${import.meta.env.VITE_API_URL}/stores/${
           import.meta.env.VITE_STORE_ID
         }/register`,
         {
@@ -67,82 +111,45 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Iniciar sesión
-  const login = async (email, password) => {
-    try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      );
-      const user = userCredential.user;
-
-      // Obtener los custom claims, incluyendo el rol
-      const idTokenResult = await user.getIdTokenResult();
-      const role = idTokenResult.claims.role;
-
-      // Verificar si el correo está verificado
-      if (!user.emailVerified) {
-        throw new Error(
-          'Por favor, verifica tu correo electrónico para continuar.',
-        );
-      }
-
-      // Obtener el ID token del usuario para futuras autenticaciones
-      const idToken = await user.getIdToken();
-      const url = `${import.meta.env.VITE_API_URL}/stores/${
-        import.meta.env.VITE_STORE_ID
-      }/users/${user.email}`;
-      const { data } = await axios.get(url);
-      console.log(data);
-      // Crear el objeto a almacenar con los datos importantes
-      const userInfo = {
-        _id: data._id,
-        email: user.email,
-        uid: user.uid,
-        role: role, // Añadir el rol del usuario
-        emailVerified: user.emailVerified,
-        idToken,
-        refreshToken: user.refreshToken, // Este es el refresh token que puedes usar para renovar el token de acceso
-      };
-
-      // Guardar la información del usuario en Local Storage o Session Storage
-      localStorage.setItem('user', JSON.stringify(userInfo)); // O sessionStorage según tus necesidades
-      setIsAuthenticated(true);
-      setCurrentUser(userInfo); // Establecer el estado del usuario actual
-      return userInfo; // Devolver los datos almacenados
-    } catch (error) {
-      // Asegúrate de manejar el error adecuadamente en tu aplicación
-      console.error('Error iniciando sesión:', error.message);
-      throw new Error('No se pudo iniciar sesión. Verifica tus credenciales.');
-    }
-  };
-
-  // Restablecer contraseña
-  const forgotPassword = async (email) => {
-    try {
-      await sendPasswordResetEmail(auth, email); // Llamada correcta en Firebase v9
-    } catch (error) {
-      setError(error.message);
-      throw error;
-    }
-  };
-
   // Cerrar sesión
   const logout = async () => {
     try {
       setIsAuthenticated(false);
-      await signOut(auth); // Llamada correcta en Firebase v9
+      setCurrentUser(null);
+      localStorage.removeItem('user'); // Eliminar los datos del LocalStorage
+      await signOut(auth);
     } catch (error) {
       setError(error.message);
-      throw error;
     }
   };
 
-  // Verificar si el usuario está autenticado y establecer el estado
+  // Cargar usuario desde LocalStorage cuando se inicializa el AuthProvider
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setCurrentUser(user);
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        // Obtener los claims del usuario actual
+        const idTokenResult = await user.getIdTokenResult();
+        const role = idTokenResult.claims.role || 'Customer';
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_API_URL}/stores/${
+            import.meta.env.VITE_STORE_ID
+          }/users/${user.email}`,
+        );
+        const { _id, addresses } = data;
+        // Establecer el estado del usuario actual con los claims
+        setCurrentUser({
+          _id,
+          addresses,
+          uid: user.uid,
+          email: user.email,
+          role: role,
+          emailVerified: user.emailVerified,
+          idToken: idTokenResult.token,
+          refreshToken: user.refreshToken,
+        });
+      } else {
+        setCurrentUser(null);
+      }
       setLoading(false);
     });
 
@@ -155,16 +162,17 @@ export const AuthProvider = ({ children }) => {
     error,
     register,
     isAuthenticated,
-
     login,
-    forgotPassword,
-    sendEmailVerification,
     logout,
   };
 
   return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
-    </AuthContext.Provider>
+    console.log({ currentUser }),
+    console.count(),
+    (
+      <AuthContext.Provider value={value}>
+        {!loading && children}
+      </AuthContext.Provider>
+    )
   );
 };

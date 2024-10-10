@@ -13,6 +13,8 @@ import Profile from './pages/Profile';
 import SalesHistory from './pages/SalesHistory';
 import PrivateRoute from './components/PrivateRoute'; // Importa tu componente PrivateRoute
 import ProductDetail from './pages/ProductDetail';
+import Addresses from './pages/Addresses';
+import FlowSuccess from './pages/FlowSuccess';
 
 function AppContent() {
   const { loading } = useStoreConfig();
@@ -54,6 +56,14 @@ function AppContent() {
         <Route
           path='/sales-history'
           element={<PrivateRoute element={SalesHistory} />}
+        />
+        <Route
+          path='/addresses'
+          element={<PrivateRoute element={Addresses} />}
+        />
+        <Route
+          path='/flow-success'
+          element={<PrivateRoute element={FlowSuccess} />}
         />
         <Route path='/product/:productId' element={<ProductDetail />} />
         <Route path='*' element={<h1>Not Found</h1>} />

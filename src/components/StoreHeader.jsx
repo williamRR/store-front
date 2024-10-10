@@ -25,7 +25,7 @@ const StoreHeader = () => {
     images: { smallLogo },
     theme,
   } = useStoreConfig();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, currentUser, logout } = useAuth();
   const { dispatch } = useCart();
 
   const handleMenu = (event) => {
@@ -126,7 +126,7 @@ const StoreHeader = () => {
               <IconButton
                 size='small'
                 aria-label='account of current user'
-                onClick={isAuthenticated ? handleProfile : handleLogin}
+                onClick={currentUser ? handleProfile : handleLogin}
                 color='inherit'
               >
                 <AccountCircle />
