@@ -161,19 +161,38 @@ const Cart = () => {
   const handleFlowPayment = async () => {
     setLoading(true);
     try {
+      const details = cart.map((item) => ({
+        image: item.image,
+        comment: item.name,
+        netUnitValue: item.price / 1.19,
+        price: item.price,
+        quantity: item.quantity,
+        taxId: '[1]',
+        product: item._id,
+      }));
       // Realizas la llamada a tu backend para crear la transacción en Flow
       const response = await axios.post(
         `/sales/${import.meta.env.VITE_STORE_ID}/webpay`,
         {
-          amount: totalAmount,
+          totalAmount,
+          customer: currentUser._id,
           currency: 'CLP',
           description: 'Compra en tu tienda',
           email: currentUser.email,
+          shippingAddress: selectedAddress,
+          details,
+          payments: [
+            {
+              paymentTypeId: 10,
+              amount: totalAmount / 1.19,
+            },
+          ],
+          cart,
         },
       );
 
       // Redirigir a la URL de Flow para completar el pago
-      window.location.href = response.data.url;
+      window.location.href = response.data.paymentUrl;
     } catch (error) {
       console.error('Error al crear la transacción:', error);
       alert('Hubo un problema con el pago. Inténtalo de nuevo.');
