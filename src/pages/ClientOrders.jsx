@@ -25,7 +25,7 @@ const ClientOrders = () => {
   const [page, setPage] = useState(1); // Página actual
   const [totalPages, setTotalPages] = useState(1); // Total de páginas
 
-  const ordersPerPage = 5; // Cantidad de órdenes por página
+  const ordersPerPage = 9; // Cantidad de órdenes por página
 
   // Llamar al backend con query params para obtener las órdenes paginadas
   useEffect(() => {
@@ -81,7 +81,12 @@ const ClientOrders = () => {
   }
 
   return (
-    <Box p={4}>
+    <Box
+      p={4}
+      sx={{
+        width: '80vw',
+      }}
+    >
       <Typography variant='h4' gutterBottom color='primary'>
         Mis Órdenes
       </Typography>
