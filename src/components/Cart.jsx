@@ -155,6 +155,7 @@ const Cart = () => {
     try {
       const details = cart.map((item) => ({
         image: item.image,
+        name: item.name,
         comment: item.name,
         netUnitValue: item.price / 1.19,
         price: item.price,

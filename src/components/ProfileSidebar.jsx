@@ -109,13 +109,6 @@ const ProfileSidebar = () => {
               <ListItemText primary='Mis Compras' />
             </ListItem>
 
-            <ListItem button onClick={() => navigate('/payment-methods')}>
-              <ListItemIcon>
-                <PaymentIcon />
-              </ListItemIcon>
-              <ListItemText primary='Medios de Pago' />
-            </ListItem>
-
             <ListItem button onClick={() => navigate('/addresses')}>
               <ListItemIcon>
                 <LocationOnIcon />
