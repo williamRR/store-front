@@ -35,7 +35,9 @@ const Checkout = () => {
       }));
       // Realizas la llamada a tu backend para crear la transacción en Flow
       const response = await axios.post(
-        `/api/sales/${import.meta.env.VITE_STORE_ID}/webpay`,
+        `${import.meta.env.VITE_API_URL}/sales/${
+          import.meta.env.VITE_STORE_ID
+        }/webpay`,
         {
           totalAmount,
           customer: currentUser._id,
