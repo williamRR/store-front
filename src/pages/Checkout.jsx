@@ -39,7 +39,7 @@ const Checkout = () => {
           import.meta.env.VITE_STORE_ID
         }/webpay`,
         {
-          totalAmount,
+          totalAmount: totalAmount + shippingCost,
           customer: currentUser._id,
           currency: 'CLP',
           description: 'Compra en tu tienda',
