@@ -20,8 +20,10 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 
 const ProfileSidebar = () => {
+  const { dispatch } = useCart();
   const {
     logout,
     currentUser: { role },
@@ -31,6 +33,8 @@ const ProfileSidebar = () => {
   // Función para manejar el logout y la navegación
   const handleLogout = () => {
     localStorage.removeItem('token');
+    dispatch({ type: 'CLEAR_CART' });
+
     logout();
     navigate('/');
   };

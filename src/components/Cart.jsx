@@ -73,6 +73,15 @@ const Cart = () => {
     setPaymentMethod(event.target.value);
   };
 
+  const handleCartLogic = () => {
+    const isCartEmpty = cart.length === 0;
+    const isUser = currentUser.role === 'Customer';
+    const hasSelectedAddress = selectedAddress != null;
+
+    const isPayButtonEnabled =
+      !isCartEmpty && (isUser ? hasSelectedAddress : true);
+    return isPayButtonEnabled;
+  };
   const handleProceedToCheckout = async () => {
     setLoading(true);
     const details = cart.map((item) => ({
@@ -145,11 +154,6 @@ const Cart = () => {
     });
   };
 
-  const handleClearCart = () => {
-    dispatch({ type: 'CLEAR_CART' });
-    toast.info('Carrito limpiado');
-  };
-
   const handleFlowPayment = async () => {
     setLoading(true);
     try {
@@ -195,177 +199,166 @@ const Cart = () => {
   };
 
   return (
-    console.log(addresses),
-    (
-      <>
-        {/* Dialog for PDF receipt */}
-        <Dialog
-          open={pdfModalOpen}
-          onClose={() => setPdfModalOpen(false)}
-          fullWidth
-        >
-          <DialogTitle>Boleta Generada</DialogTitle>
-          <DialogContent>
-            {receipt && (
-              <iframe
-                src={receipt.urlPdf}
-                title='Boleta PDF'
-                width='100%'
-                height='600px'
-                style={{ border: 'none' }}
-              />
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setPdfModalOpen(false)} color='primary'>
-              Cerrar
-            </Button>
-          </DialogActions>
-        </Dialog>
+    <>
+      {/* Dialog for PDF receipt */}
+      <Dialog
+        open={pdfModalOpen}
+        onClose={() => setPdfModalOpen(false)}
+        fullWidth
+      >
+        <DialogTitle>Boleta Generada</DialogTitle>
+        <DialogContent>
+          {receipt && (
+            <iframe
+              src={receipt.urlPdf}
+              title='Boleta PDF'
+              width='100%'
+              height='600px'
+              style={{ border: 'none' }}
+            />
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPdfModalOpen(false)} color='primary'>
+            Cerrar
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-        {/* Dialog for Payment Method Selection */}
-        <Dialog open={paymentDialogOpen} onClose={handleClosePaymentDialog}>
-          <DialogTitle>Seleccione el método de pago</DialogTitle>
-          <DialogContent>
-            <RadioGroup
-              aria-label='payment-method'
-              name='payment-method'
-              value={paymentMethod}
-              onChange={handlePaymentMethodChange}
-            >
-              <FormControlLabel
-                value='efectivo'
-                control={<Radio />}
-                label='Efectivo'
-              />
-              <FormControlLabel
-                value='transbank'
-                control={<Radio />}
-                label='Transbank'
-              />
-              <FormControlLabel
-                value='transfer'
-                control={<Radio />}
-                label='Transferencia (16.387.103-3)'
-              />
-            </RadioGroup>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClosePaymentDialog} color='secondary'>
-              Cancelar
-            </Button>
-            <Button
-              onClick={handleProceedToCheckout}
-              color='primary'
-              disabled={!paymentMethod || loading}
-            >
-              {loading ? <CircularProgress size={20} /> : 'Continuar'}
-            </Button>
-          </DialogActions>
-        </Dialog>
-
-        {/* Cart Drawer */}
-        <Drawer anchor='right' open={isOpen} onClose={toggleCartDrawer}>
-          <Box
-            sx={{
-              width: 450,
-              padding: '0.5rem',
-            }}
-            role='presentation'
+      {/* Dialog for Payment Method Selection */}
+      <Dialog open={paymentDialogOpen} onClose={handleClosePaymentDialog}>
+        <DialogTitle>Seleccione el método de pago</DialogTitle>
+        <DialogContent>
+          <RadioGroup
+            aria-label='payment-method'
+            name='payment-method'
+            value={paymentMethod}
+            onChange={handlePaymentMethodChange}
           >
-            <Typography variant='h6' gutterBottom>
-              Carrito de Compras
-            </Typography>
+            <FormControlLabel
+              value='efectivo'
+              control={<Radio />}
+              label='Efectivo'
+            />
+            <FormControlLabel
+              value='transbank'
+              control={<Radio />}
+              label='Transbank'
+            />
+            <FormControlLabel
+              value='transfer'
+              control={<Radio />}
+              label='Transferencia (16.387.103-3)'
+            />
+          </RadioGroup>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClosePaymentDialog} color='secondary'>
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleProceedToCheckout}
+            color='primary'
+            disabled={!paymentMethod || loading}
+          >
+            {loading ? <CircularProgress size={20} /> : 'Continuar'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
-            <List>
-              {cart?.map((item) => (
-                <ListItem key={item._id} divider sx={{ padding: '0.5rem 0' }}>
-                  <Grid
-                    container
-                    justifyContent={'space-evenly'}
-                    sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      width: '100%',
-                    }}
-                  >
-                    <Grid
-                      item
-                      xs={1}
-                      sx={{ marginRight: '1rem', width: '50px' }}
-                    >
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        style={{
-                          width: '40px',
-                          height: '40px',
-                          objectFit: 'cover',
-                        }}
-                      />
-                    </Grid>
-                    <Grid item xs={2}>
-                      <Typography variant='body2'>{item.name}</Typography>
-                      <Typography variant='caption'>
-                        Cantidad: {item.quantity}
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={7} container justifyContent={'space-around'}>
-                      <TextField
-                        type='number'
-                        sx={{ width: '50%' }}
-                        variant='outlined'
-                        size='small'
-                        value={item.price}
-                        onChange={(e) =>
-                          handlePriceChange(
-                            item._id,
-                            parseFloat(e.target.value),
-                          )
-                        }
-                        inputProps={{ min: 0, step: 0.01 }}
-                        InputProps={{
-                          startAdornment: (
-                            <InputAdornment position='start'>$</InputAdornment>
-                          ),
-                        }}
-                      />
-                      <TextField
-                        type='number'
-                        sx={{ width: '25%' }}
-                        variant='outlined'
-                        size='small'
-                        value={item.quantity}
-                        onChange={(e) =>
-                          handleQuantityChange(
-                            item._id,
-                            parseInt(e.target.value),
-                          )
-                        }
-                        inputProps={{ min: 1 }}
-                      />
-                      <IconButton
-                        color='secondary'
-                        size='small'
-                        onClick={() => handleRemoveItem(item._id)}
-                        sx={{ width: '10%' }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Grid>
+      {/* Cart Drawer */}
+      <Drawer anchor='right' open={isOpen} onClose={toggleCartDrawer}>
+        <Box
+          sx={{
+            width: 450,
+            padding: '0.5rem',
+          }}
+          role='presentation'
+        >
+          <Typography variant='h6' gutterBottom>
+            Carrito de Compras
+          </Typography>
+
+          <List>
+            {cart?.map((item) => (
+              <ListItem key={item._id} divider sx={{ padding: '0.5rem 0' }}>
+                <Grid
+                  container
+                  justifyContent={'space-evenly'}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    width: '100%',
+                  }}
+                >
+                  <Grid item xs={1} sx={{ marginRight: '1rem', width: '50px' }}>
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      style={{
+                        width: '40px',
+                        height: '40px',
+                        objectFit: 'cover',
+                      }}
+                    />
                   </Grid>
-                </ListItem>
-              ))}
-            </List>
+                  <Grid item xs={2}>
+                    <Typography variant='body2'>{item.name}</Typography>
+                    <Typography variant='caption'>
+                      Cantidad: {item.quantity}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={7} container justifyContent={'space-around'}>
+                    <TextField
+                      type='number'
+                      sx={{ width: '50%' }}
+                      variant='outlined'
+                      size='small'
+                      value={item.price}
+                      onChange={(e) =>
+                        handlePriceChange(item._id, parseFloat(e.target.value))
+                      }
+                      inputProps={{ min: 0, step: 0.01 }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position='start'>$</InputAdornment>
+                        ),
+                      }}
+                    />
+                    <TextField
+                      type='number'
+                      sx={{ width: '25%' }}
+                      variant='outlined'
+                      size='small'
+                      value={item.quantity}
+                      onChange={(e) =>
+                        handleQuantityChange(item._id, parseInt(e.target.value))
+                      }
+                      inputProps={{ min: 1 }}
+                    />
+                    <IconButton
+                      color='secondary'
+                      size='small'
+                      onClick={() => handleRemoveItem(item._id)}
+                      sx={{ width: '10%' }}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Grid>
+                </Grid>
+              </ListItem>
+            ))}
+          </List>
 
-            <Typography
-              variant='subtitle1'
-              sx={{ fontWeight: 'bold', color: 'green', textAlign: 'right' }}
-            >
-              Total: ${totalAmount}
-            </Typography>
+          <Typography
+            variant='subtitle1'
+            sx={{ fontWeight: 'bold', color: 'green', textAlign: 'right' }}
+          >
+            Total: ${totalAmount}
+          </Typography>
 
-            {/* Autocomplete para seleccionar dirección */}
+          {/* Autocomplete para seleccionar dirección */}
+          {currentUser?.role === 'Customer' && (
             <Autocomplete
               options={addresses}
               getOptionLabel={(option) =>
@@ -383,65 +376,60 @@ const Cart = () => {
               onChange={handleAddressSelect}
               sx={{ margin: '10px 0' }}
             />
+          )}
 
-            {!currentUser ? (
-              <>
-                <Button
-                  variant='contained'
-                  color='primary'
-                  fullWidth
-                  disabled={!cart.length}
-                  sx={{ margin: '10px 0' }}
-                  onClick={() => setAuthOpen(true)}
-                >
-                  Iniciar Sesión
-                </Button>
-                <Typography variant='body2' textAlign='center'>
-                  Debes iniciar sesión para pagar
-                </Typography>
-              </>
-            ) : currentUser.role === 'Customer' && addresses?.length === 0 ? (
-              <>
-                <Typography variant='body2' color='error' textAlign='center'>
-                  Debes añadir una dirección antes de proceder al pago
-                </Typography>
-                <Button
-                  variant='contained'
-                  fullWidth
-                  color='primary'
-                  disabled
-                  sx={{ margin: '10px 0' }}
-                >
-                  Pagar
-                </Button>
-              </>
-            ) : (
+          {!currentUser ? (
+            <>
               <Button
                 variant='contained'
                 color='primary'
                 fullWidth
-                disabled={
-                  !cart.length ||
-                  loading ||
-                  paymentDialogOpen ||
-                  !selectedAddress
-                }
+                disabled={!cart.length}
                 sx={{ margin: '10px 0' }}
-                onClick={
-                  currentUser.role === 'Salesman'
-                    ? handleOpenPaymentDialog
-                    : handleFlowPayment
-                }
+                onClick={() => setAuthOpen(true)}
+              >
+                Iniciar Sesión
+              </Button>
+              <Typography variant='body2' textAlign='center'>
+                Debes iniciar sesión para pagar
+              </Typography>
+            </>
+          ) : currentUser.role === 'Customer' && addresses?.length === 0 ? (
+            <>
+              <Typography variant='body2' color='error' textAlign='center'>
+                Debes añadir una dirección antes de proceder al pago
+              </Typography>
+              <Button
+                variant='contained'
+                fullWidth
+                color='primary'
+                disabled
+                sx={{ margin: '10px 0' }}
               >
                 Pagar
               </Button>
-            )}
-          </Box>
-        </Drawer>
+            </>
+          ) : (
+            <Button
+              variant='contained'
+              color='primary'
+              fullWidth
+              disabled={!handleCartLogic()}
+              sx={{ margin: '10px 0' }}
+              onClick={
+                currentUser.role === 'Salesman'
+                  ? handleOpenPaymentDialog
+                  : handleFlowPayment
+              }
+            >
+              Pagar
+            </Button>
+          )}
+        </Box>
+      </Drawer>
 
-        <AuthModal open={authOpen} handleClose={() => setAuthOpen(false)} />
-      </>
-    )
+      <AuthModal open={authOpen} handleClose={() => setAuthOpen(false)} />
+    </>
   );
 };
 
