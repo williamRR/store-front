@@ -3,7 +3,6 @@ import {
   Box,
   TextField,
   Typography,
-  MenuItem,
   Button,
   List,
   ListItem,
@@ -19,54 +18,28 @@ const Checkout = () => {
   const [addresses, setAddresses] = useState([]);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [shippingCost, setShippingCost] = useState(0);
-
-  const handleFlowPayment = async () => {
-    // setLoading(true);
-    try {
-      const details = cart.map((item) => ({
-        image: item.image,
-        name: item.name,
-        comment: item.name,
-        netUnitValue: item.price / 1.19,
-        price: item.price,
-        quantity: item.quantity,
-        taxId: '[1]',
-        product: item._id,
-      }));
-      // Realizas la llamada a tu backend para crear la transacción en Flow
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/sales/${
-          import.meta.env.VITE_STORE_ID
-        }/webpay`,
-        {
-          totalAmount: totalAmount + shippingCost,
-          customer: currentUser._id,
-          currency: 'CLP',
-          description: 'Compra en tu tienda',
-          email: currentUser.email,
-          shippingAddress: selectedAddress,
-          details,
-          payments: [
-            {
-              paymentTypeId: 10,
-              amount: totalAmount / 1.19,
-            },
-          ],
-          cart,
-        },
-      );
-
-      // Redirigir a la URL de Flow para completar el pago
-      window.location.href = response.data.paymentUrl;
-    } catch (error) {
-      console.error('Error al crear la transacción:', error);
-      alert('Hubo un problema con el pago. Inténtalo de nuevo.');
-    } finally {
-      // setLoading(false);
-    }
-  };
+  const [contactInfo, setContactInfo] = useState({
+    name: '',
+    phone: '',
+    email: '',
+  });
 
   const { currentUser } = useAuth();
+  const {
+    state: { cart, totalAmount },
+  } = useCart();
+
+  // Cargar datos iniciales de contacto y direcciones
+  useEffect(() => {
+    if (currentUser) {
+      setContactInfo({
+        name: currentUser.name || '',
+        phone: currentUser.phone || '',
+        email: currentUser.email || '',
+      });
+    }
+    fetchAddresses();
+  }, [currentUser]);
 
   const fetchAddresses = async () => {
     try {
@@ -79,27 +52,57 @@ const Checkout = () => {
     }
   };
 
-  useEffect(() => {
-    fetchAddresses();
-  }, []);
+  // Manejar cambios en los datos de contacto
+  const handleContactChange = (event) => {
+    const { name, value } = event.target;
+    setContactInfo((prevInfo) => ({ ...prevInfo, [name]: value }));
+  };
 
   // Manejar selección de dirección en Autocomplete
   const handleAddressSelect = (event, value) => {
     setSelectedAddress(value);
   };
 
-  const {
-    state: { cart, totalAmount },
-  } = useCart();
-
   // Calcular costo de envío
   useEffect(() => {
-    if (totalAmount > 30000) {
-      setShippingCost(0); // Envío gratuito
-    } else {
-      setShippingCost(5000); // Costo fijo para envíos dentro de Santiago
-    }
+    setShippingCost(totalAmount > 30000 ? 0 : 5000);
   }, [totalAmount]);
+
+  const handleFlowPayment = async () => {
+    try {
+      const details = cart.map((item) => ({
+        image: item.image,
+        name: item.name,
+        comment: item.name,
+        netUnitValue: item.price / 1.19,
+        price: item.price,
+        quantity: item.quantity,
+        taxId: '[1]',
+        product: item._id,
+      }));
+
+      // Enviar información completa del pedido
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/sales/${
+          import.meta.env.VITE_STORE_ID
+        }/webpay`,
+        {
+          totalAmount: totalAmount + shippingCost,
+          customer: currentUser._id,
+          ...contactInfo,
+          shippingAddress: selectedAddress,
+          details,
+          payments: [{ paymentTypeId: 10, amount: totalAmount / 1.19 }],
+          cart,
+        },
+      );
+
+      window.location.href = response.data.paymentUrl;
+    } catch (error) {
+      console.error('Error al crear la transacción:', error);
+      alert('Hubo un problema con el pago. Inténtalo de nuevo.');
+    }
+  };
 
   return (
     <Box sx={{ p: 4, maxWidth: 600, margin: 'auto' }}>
@@ -114,15 +117,27 @@ const Checkout = () => {
         </Typography>
         <TextField
           label='Nombre'
+          name='name'
           fullWidth
           margin='normal'
-          defaultValue={currentUser.name}
+          value={contactInfo.name}
+          onChange={handleContactChange}
         />
         <TextField
           label='Teléfono'
+          name='phone'
           fullWidth
           margin='normal'
-          defaultValue={currentUser.phone}
+          value={contactInfo.phone}
+          onChange={handleContactChange}
+        />
+        <TextField
+          label='Correo Electrónico'
+          name='email'
+          fullWidth
+          margin='normal'
+          value={contactInfo.email}
+          onChange={handleContactChange}
         />
 
         {/* Autocomplete para seleccionar dirección */}
