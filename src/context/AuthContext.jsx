@@ -72,26 +72,29 @@ export const AuthProvider = ({ children }) => {
   // Registro de usuario
   const register = async (email, password) => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(
+      // Registrar usuario en el backend
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/auth/store/${
+          import.meta.env.VITE_STORE_ID
+        }/create-user`,
+        {
+          password,
+          email,
+        },
+      );
+
+      // Iniciar sesión para enviar el correo de verificación
+      const userCredential = await signInWithEmailAndPassword(
         auth,
         email,
         password,
       );
       const user = userCredential.user;
 
-      await sendEmailVerification(user); // Enviar correo de verificación
+      // Enviar el correo de verificación
+      await sendEmailVerification(user);
 
-      // Registrar usuario en el backend y asignar rol
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/stores/${
-          import.meta.env.VITE_STORE_ID
-        }/register`,
-        {
-          uid: user.uid,
-          email: user.email,
-          role: 'Customer', // Rol inicial para el usuario registrado
-        },
-      );
+      console.log('Correo de verificación enviado');
     } catch (error) {
       console.log(error);
       setError(error.message);
@@ -183,8 +186,5 @@ export const AuthProvider = ({ children }) => {
     forgotPassword,
   };
 
-  return (
-    console.log(value),
-    (<AuthContext.Provider value={value}>{children}</AuthContext.Provider>)
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

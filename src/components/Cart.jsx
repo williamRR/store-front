@@ -27,6 +27,7 @@ import AuthModal from './AuthModal';
 import apiClient from '../axios.config';
 import DeleteIcon from '@mui/icons-material/Delete';
 import axios from '../axios.config';
+import { useNavigate } from 'react-router-dom';
 
 const Cart = () => {
   const {
@@ -49,6 +50,7 @@ const Cart = () => {
   const handleAddressSelect = (event, value) => {
     setSelectedAddress(value);
   };
+  const navigate = useNavigate();
 
   const handleClosePaymentDialog = () => {
     setPaymentDialogOpen(false);
@@ -152,50 +154,6 @@ const Cart = () => {
       type: 'UPDATE_PRICE',
       payload: { _id, price: parseFloat(price) },
     });
-  };
-
-  const handleFlowPayment = async () => {
-    setLoading(true);
-    try {
-      const details = cart.map((item) => ({
-        image: item.image,
-        name: item.name,
-        comment: item.name,
-        netUnitValue: item.price / 1.19,
-        price: item.price,
-        quantity: item.quantity,
-        taxId: '[1]',
-        product: item._id,
-      }));
-      // Realizas la llamada a tu backend para crear la transacción en Flow
-      const response = await axios.post(
-        `/sales/${import.meta.env.VITE_STORE_ID}/webpay`,
-        {
-          totalAmount,
-          customer: currentUser._id,
-          currency: 'CLP',
-          description: 'Compra en tu tienda',
-          email: currentUser.email,
-          shippingAddress: selectedAddress,
-          details,
-          payments: [
-            {
-              paymentTypeId: 10,
-              amount: totalAmount / 1.19,
-            },
-          ],
-          cart,
-        },
-      );
-
-      // Redirigir a la URL de Flow para completar el pago
-      window.location.href = response.data.paymentUrl;
-    } catch (error) {
-      console.error('Error al crear la transacción:', error);
-      alert('Hubo un problema con el pago. Inténtalo de nuevo.');
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
@@ -357,27 +315,6 @@ const Cart = () => {
             Total: ${totalAmount}
           </Typography>
 
-          {/* Autocomplete para seleccionar dirección */}
-          {currentUser?.role === 'Customer' && (
-            <Autocomplete
-              options={addresses}
-              getOptionLabel={(option) =>
-                `${option.street} ${option.number}, ${option.city}, ${option.region}`
-              }
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label='Seleccionar dirección'
-                  variant='outlined'
-                  fullWidth
-                />
-              )}
-              value={selectedAddress}
-              onChange={handleAddressSelect}
-              sx={{ margin: '10px 0' }}
-            />
-          )}
-
           {!currentUser ? (
             <>
               <Button
@@ -394,32 +331,17 @@ const Cart = () => {
                 Debes iniciar sesión para pagar
               </Typography>
             </>
-          ) : currentUser.role === 'Customer' && addresses?.length === 0 ? (
-            <>
-              <Typography variant='body2' color='error' textAlign='center'>
-                Debes añadir una dirección antes de proceder al pago
-              </Typography>
-              <Button
-                variant='contained'
-                fullWidth
-                color='primary'
-                disabled
-                sx={{ margin: '10px 0' }}
-              >
-                Pagar
-              </Button>
-            </>
           ) : (
             <Button
               variant='contained'
               color='primary'
               fullWidth
-              disabled={!handleCartLogic()}
+              disabled={!cart.length}
               sx={{ margin: '10px 0' }}
               onClick={
                 currentUser.role === 'Salesman'
                   ? handleOpenPaymentDialog
-                  : handleFlowPayment
+                  : () => navigate('/checkout')
               }
             >
               Pagar
