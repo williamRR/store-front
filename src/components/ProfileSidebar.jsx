@@ -83,12 +83,12 @@ const ProfileSidebar = () => {
               <ListItemText primary='Historial de Ventas' />
             </ListItem>
 
-            <ListItem button onClick={() => navigate('/sales-reports')}>
+            {/* <ListItem button onClick={() => navigate('/sales-reports')}>
               <ListItemIcon>
                 <AssessmentIcon />
               </ListItemIcon>
               <ListItemText primary='Informes de Ventas' />
-            </ListItem>
+            </ListItem> */}
           </List>
 
           <Divider sx={{ my: 2 }} />
@@ -126,19 +126,19 @@ const ProfileSidebar = () => {
         Soporte y Ajustes
       </Typography>
       <List>
-        <ListItem button onClick={() => navigate('/support')}>
+        {/* <ListItem button onClick={() => navigate('/support')}>
           <ListItemIcon>
             <SupportAgentIcon />
           </ListItemIcon>
           <ListItemText primary='Soporte' />
-        </ListItem>
+        </ListItem> */}
 
-        <ListItem button onClick={() => navigate('/settings')}>
+        {/* <ListItem button onClick={() => navigate('/settings')}>
           <ListItemIcon>
             <SettingsIcon />
           </ListItemIcon>
           <ListItemText primary='Ajustes' />
-        </ListItem>
+        </ListItem> */}
 
         <ListItem button onClick={handleLogout}>
           <ListItemIcon>

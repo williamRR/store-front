@@ -126,14 +126,14 @@ const ProfileMainContent = () => {
         </Grid>
 
         {/* Ingresos Totales */}
-        <Grid item xs={12} md={6} lg={4}>
+        {/* <Grid item xs={12} md={6} lg={4}>
           <MetricCard
             title='Ingresos Totales'
             value={metrics.totalRevenue}
             subtitle={`Total de Ventas: ${metrics.totalSales}`}
             icon={<MonetizationOn sx={{ fontSize: 50 }} />}
           />
-        </Grid>
+        </Grid> */}
 
         {/* Comisión Total */}
         <Grid item xs={12} md={6} lg={4}>

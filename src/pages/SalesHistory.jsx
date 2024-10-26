@@ -44,9 +44,7 @@ const SalesHistory = () => {
   const [totalSalesAmount, setTotalSalesAmount] = useState(null);
   const [totalCommissions, setTotalCommissions] = useState(null);
 
-  const {
-    userData: { user },
-  } = useAuth();
+  const { currentUser } = useAuth();
 
   useEffect(() => {
     fetchSales();
@@ -58,7 +56,7 @@ const SalesHistory = () => {
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/stores/${
           import.meta.env.VITE_STORE_ID
-        }/saleman-sales?seller=${user._id}&page=${
+        }/saleman-sales?seller=${currentUser._id}&page=${
           page + 1
         }&limit=${rowsPerPage}&sort=${sort}&order=${order}&startDate=${startDate}&endDate=${endDate}`,
       );

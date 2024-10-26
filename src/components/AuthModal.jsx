@@ -12,6 +12,7 @@ import {
 import { useForm, Controller } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import { motion } from 'framer-motion'; // Para animación
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
@@ -32,22 +33,19 @@ const AuthModal = ({ open, handleClose }) => {
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   const onSubmit = async (data) => {
+    console.log('subtimiti');
     try {
       if (view === 'login') {
-        // Iniciar sesión
+        console.log('Iniciar sesión con:', data);
         await login(data.email, data.password);
         toast.success('Inicio de sesión exitoso');
         reset();
         handleClose();
       } else if (view === 'register') {
-        // Registro de usuario
         await register(data.email, data.password);
         toast.success('Registro exitoso, verifica tu correo');
-        // reset();
-        // handleClose();
         setView('login');
       } else if (view === 'forgotPassword') {
-        // Recuperación de contraseña
         await forgotPassword(data.email);
         toast.success('Correo de recuperación enviado');
         setView('login');
@@ -59,7 +57,7 @@ const AuthModal = ({ open, handleClose }) => {
   };
 
   const handleError = (error) => {
-    console.log(error.message);
+    console.log(error);
     if (error.message === 'Firebase: Error (auth/email-already-in-use).') {
       setError('email', {
         type: 'manual',
@@ -68,13 +66,16 @@ const AuthModal = ({ open, handleClose }) => {
     } else if (
       error.message.includes('Firebase: Error (auth/invalid-credential).')
     ) {
+      setError('email', {
+        type: 'manual',
+        message: 'Correo o contraseña incorrectos',
+      });
       setError('password', {
         type: 'manual',
-        message: 'Contraseña incorrecta',
+        message: 'Correo o contraseña incorrectos',
       });
     } else if (
-      error.message ===
-      'Por favor, verifica tu correo electrónico para continuar.'
+      error.message === 'Verifica tu correo electrónico para continuar.'
     ) {
       setError('email', {
         type: 'manual',
@@ -86,166 +87,170 @@ const AuthModal = ({ open, handleClose }) => {
         message: 'Error desconocido. Verifica tus datos.',
       });
     }
-    console.error('Error handling submit:', error);
   };
 
-  const renderForm = () => {
-    switch (view) {
-      case 'login':
-        return (
-          <>
-            <Controller
-              name='email'
-              control={control}
-              defaultValue=''
-              rules={{ required: 'Correo requerido' }}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label='Correo'
-                  variant='outlined'
-                  error={!!errors.email}
-                  helperText={errors.email?.message.toString()}
-                  fullWidth
-                  margin='normal'
-                />
-              )}
-            />
-            <Controller
-              name='password'
-              control={control}
-              defaultValue=''
-              rules={{ required: 'Contraseña requerida' }}
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label='Contraseña'
-                  type={showPassword ? 'text' : 'password'}
-                  variant='outlined'
-                  error={!!errors.password}
-                  helperText={errors.password?.message.toString()}
-                  fullWidth
-                  margin='normal'
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        <IconButton
-                          aria-label='toggle password visibility'
-                          onClick={handleClickShowPassword}
-                          edge='end'
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              )}
-            />
-            <Button type='submit' variant='contained' color='primary' fullWidth>
-              Iniciar Sesión
-            </Button>
-            <Grid container justifyContent='space-between' marginTop='1rem'>
-              <Button onClick={() => setView('register')}>Registrarse</Button>
-              <Button onClick={() => setView('forgotPassword')}>
-                Recuperar Contraseña
-              </Button>
-            </Grid>
-          </>
-        );
-      case 'register':
-        return (
-          <>
-            <Controller
-              name='email'
-              control={control}
-              rules={{ required: 'Correo requerido' }}
-              defaultValue=''
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label='Correo'
-                  error={!!errors.email}
-                  helperText={errors.email?.message.toString()}
-                  variant='outlined'
-                  fullWidth
-                  margin='normal'
-                />
-              )}
-            />
-            <Controller
-              name='password'
-              control={control}
-              rules={{ required: 'Contraseña requerida' }}
-              defaultValue=''
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label='Contraseña'
-                  type={showPassword ? 'text' : 'password'}
-                  variant='outlined'
-                  fullWidth
-                  margin='normal'
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position='end'>
-                        <IconButton
-                          aria-label='toggle password visibility'
-                          onClick={handleClickShowPassword}
-                          edge='end'
-                        >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              )}
-            />
-            <Button type='submit' variant='contained' color='primary' fullWidth>
-              Registrarse
-            </Button>
-            <Grid container justifyContent='flex-end' marginTop='1rem'>
-              <Button onClick={() => setView('login')}>Iniciar Sesión</Button>
-            </Grid>
-          </>
-        );
-      case 'forgotPassword':
-        return (
-          <>
-            <Controller
-              name='email'
-              control={control}
-              defaultValue=''
-              rules={{ required: 'Correo requerido' }}
-              helpertext='Correo requerido'
-              render={({ field }) => (
-                <TextField
-                  {...field}
-                  label='Correo'
-                  variant='outlined'
-                  fullWidth
-                  error={!!errors.email}
-                  helperText={errors.email?.message.toString()}
-                  margin='normal'
-                />
-              )}
-            />
-            <Button type='submit' variant='contained' color='primary' fullWidth>
+  const renderForm = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3 }}
+    >
+      {view === 'login' && (
+        <>
+          <Controller
+            name='email'
+            control={control}
+            defaultValue=''
+            rules={{ required: 'Correo requerido' }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label='Correo'
+                variant='outlined'
+                error={!!errors.email}
+                helperText={errors.email?.message.toString()}
+                fullWidth
+                margin='normal'
+              />
+            )}
+          />
+          <Controller
+            name='password'
+            control={control}
+            defaultValue=''
+            rules={{ required: 'Contraseña requerida' }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label='Contraseña'
+                type={showPassword ? 'text' : 'password'}
+                variant='outlined'
+                error={!!errors.password}
+                helperText={errors.password?.message.toString()}
+                fullWidth
+                margin='normal'
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position='end'>
+                      <IconButton
+                        aria-label='toggle password visibility'
+                        onClick={handleClickShowPassword}
+                        edge='end'
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
+          />
+          <Button type='submit' variant='contained' color='primary' fullWidth>
+            Iniciar Sesión
+          </Button>
+          <Grid container justifyContent='space-between' marginTop='1rem'>
+            <Button onClick={() => setView('register')}>Registrarse</Button>
+            <Button onClick={() => setView('forgotPassword')}>
               Recuperar Contraseña
             </Button>
-            <Grid container justifyContent='flex-end' marginTop='1rem'>
-              <Button onClick={() => setView('login')}>Iniciar Sesión</Button>
-            </Grid>
-          </>
-        );
-      default:
-        return null;
-    }
-  };
+          </Grid>
+        </>
+      )}
+      {view === 'register' && (
+        <>
+          <Controller
+            name='email'
+            control={control}
+            rules={{ required: 'Correo requerido' }}
+            defaultValue=''
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label='Correo'
+                error={!!errors.email}
+                helperText={errors.email?.message.toString()}
+                variant='outlined'
+                fullWidth
+                margin='normal'
+              />
+            )}
+          />
+          <Controller
+            name='password'
+            control={control}
+            rules={{ required: 'Contraseña requerida' }}
+            defaultValue=''
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label='Contraseña'
+                type={showPassword ? 'text' : 'password'}
+                variant='outlined'
+                fullWidth
+                margin='normal'
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position='end'>
+                      <IconButton
+                        aria-label='toggle password visibility'
+                        onClick={handleClickShowPassword}
+                        edge='end'
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            )}
+          />
+          <Button type='submit' variant='contained' color='primary' fullWidth>
+            Registrarse
+          </Button>
+          <Grid container justifyContent='flex-end' marginTop='1rem'>
+            <Button onClick={() => setView('login')}>Iniciar Sesión</Button>
+          </Grid>
+        </>
+      )}
+      {view === 'forgotPassword' && (
+        <>
+          <Controller
+            name='email'
+            control={control}
+            defaultValue=''
+            rules={{ required: 'Correo requerido' }}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                label='Correo'
+                variant='outlined'
+                fullWidth
+                error={!!errors.email}
+                helperText={errors.email?.message.toString()}
+                margin='normal'
+              />
+            )}
+          />
+          <Button type='submit' variant='contained' color='primary' fullWidth>
+            Recuperar Contraseña
+          </Button>
+          <Grid container justifyContent='flex-end' marginTop='1rem'>
+            <Button onClick={() => setView('login')}>Iniciar Sesión</Button>
+          </Grid>
+        </>
+      )}
+    </motion.div>
+  );
 
   return (
-    <Modal open={open} onClose={handleClose}>
+    <Modal
+      open={open}
+      onClose={() => {
+        reset();
+        handleClose();
+      }}
+    >
       <Box
         sx={{
           position: 'absolute',

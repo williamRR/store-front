@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import {
   getAuth,
@@ -24,62 +24,54 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const AuthContext = createContext();
 
-// Hook para usar el AuthContext en otros componentes
 export const useAuth = () => useContext(AuthContext);
 
-// AuthProvider que envuelve tu aplicación
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Guardar los datos del usuario en LocalStorage después de iniciar sesión o registrarse
-  // const storeUserInLocalStorage = (user) => {
-  //   localStorage.setItem('user', JSON.stringify(user));
-  // };
-
-  // Iniciar sesión
   const login = async (email, password) => {
-    try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      );
-      const user = userCredential.user;
-      if (!user.emailVerified) {
-        throw new Error('Verifica tu correo electrónico para continuar.');
-      }
-      // Obtener los custom claims del usuario (incluye el rol)
-      const idTokenResult = await user.getIdTokenResult();
-      const role = idTokenResult.claims.role || 'Customer'; // Default a 'Customer' si no hay rol asignado
-      const { data } = await axios.get(
-        `${import.meta.env.VITE_API_URL}/stores/${
-          import.meta.env.VITE_STORE_ID
-        }/users/${user.email}`,
-      );
-      const { _id, addresses } = data;
-      // Establecer el usuario en el estado local con el rol
-      setCurrentUser({
-        _id,
-        addresses,
-        uid: user.uid,
-        email: user.email,
-        role: role,
-        emailVerified: user.emailVerified,
-        idToken: idTokenResult.token,
-        refreshToken: user.refreshToken,
-      });
-    } catch (error) {
-      console.error('Error iniciando sesión:', error);
-      throw new Error('No se pudo iniciar sesión. Verifica tus credenciales.');
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password,
+    );
+    const user = userCredential.user;
+
+    if (!user.emailVerified) {
+      await logout(); // Desautenticar si no está verificado
+      throw new Error('Verifica tu correo electrónico para continuar.');
     }
+    const idTokenResult = await user.getIdTokenResult();
+    const role = idTokenResult.claims.role || 'Customer'; // Rol predeterminado si no hay claim asignado
+    console.log('Role:', role);
+    const { data } = await axios.get(
+      `${import.meta.env.VITE_API_URL}/stores/${
+        import.meta.env.VITE_STORE_ID
+      }/${role}/${user.email}`,
+    );
+
+    const { _id, addresses } = data;
+
+    const userData = {
+      _id,
+      addresses,
+      uid: user.uid,
+      email: user.email,
+      role,
+      emailVerified: user.emailVerified,
+      idToken: idTokenResult.token,
+      refreshToken: user.refreshToken,
+    };
+
+    setCurrentUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData)); // Persistencia de usuario
   };
 
+  // Registro de usuario
   const register = async (email, password) => {
     try {
-      // Paso 1: Registrar el usuario en Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -87,23 +79,19 @@ export const AuthProvider = ({ children }) => {
       );
       const user = userCredential.user;
 
-      // Paso 2: Enviar el correo de verificación (opcional)
-      await sendEmailVerification(user);
+      await sendEmailVerification(user); // Enviar correo de verificación
 
-      // Paso 3: Hacer una solicitud a tu backend para asignar el rol y registrar en tu base de datos
-      const newUser = await axios.post(
-        `
-        ${import.meta.env.VITE_API_URL}/stores/${
+      // Registrar usuario en el backend y asignar rol
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/stores/${
           import.meta.env.VITE_STORE_ID
         }/register`,
         {
-          uid: user.uid, // Usamos el UID generado por Firebase
+          uid: user.uid,
           email: user.email,
-          role: 'Customer', // Rol que quieres asignar
+          role: 'Customer', // Rol inicial para el usuario registrado
         },
       );
-
-      return newUser; // Retorna la respuesta del backend
     } catch (error) {
       console.log(error);
       setError(error.message);
@@ -111,38 +99,67 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Recuperación de contraseña
+  const forgotPassword = async (email) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+    } catch (error) {
+      console.error('Error enviando correo de recuperación:', error);
+      setError(error.message);
+      throw new Error('No se pudo enviar el correo de recuperación.');
+    }
+  };
+
   // Cerrar sesión
   const logout = async () => {
     try {
-      setIsAuthenticated(false);
+      localStorage.removeItem('user');
+      setCurrentUser({});
+      signOut(auth)
+        .then(() => {
+          console.log('Sesión cerrada');
+        })
+        .catch((error) => {
+          console.log(error);
+        });
       setCurrentUser(null);
-      localStorage.removeItem('user'); // Eliminar los datos del LocalStorage
-      await signOut(auth);
+
+      console.log('Sesión cerrada');
     } catch (error) {
+      console.error('Error cerrando sesión:', error);
       setError(error.message);
     }
   };
 
-  // Cargar usuario desde LocalStorage cuando se inicializa el AuthProvider
   useEffect(() => {
+    if (currentUser && !currentUser.emailVerified) {
+      logout();
+    }
+  }, [currentUser]);
+  // Mantener sesión y recuperar usuario de LocalStorage
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) setCurrentUser(JSON.parse(storedUser));
+
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
-        // Obtener los claims del usuario actual
         const idTokenResult = await user.getIdTokenResult();
         const role = idTokenResult.claims.role || 'Customer';
+
         const { data } = await axios.get(
           `${import.meta.env.VITE_API_URL}/stores/${
             import.meta.env.VITE_STORE_ID
-          }/users/${user.email}`,
+          }/${role}/${user.email}`,
         );
+
         const { _id, addresses } = data;
-        // Establecer el estado del usuario actual con los claims
+
         setCurrentUser({
           _id,
           addresses,
           uid: user.uid,
           email: user.email,
-          role: role,
+          role,
           emailVerified: user.emailVerified,
           idToken: idTokenResult.token,
           refreshToken: user.refreshToken,
@@ -156,23 +173,17 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  // El valor que se expone al resto de la aplicación
   const value = {
     currentUser,
     error,
     register,
-    isAuthenticated,
     login,
     logout,
+    forgotPassword,
   };
 
   return (
-    console.log({ currentUser }),
-    console.count(),
-    (
-      <AuthContext.Provider value={value}>
-        {!loading && children}
-      </AuthContext.Provider>
-    )
+    console.log(value),
+    (<AuthContext.Provider value={value}>{children}</AuthContext.Provider>)
   );
 };
