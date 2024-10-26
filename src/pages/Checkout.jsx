@@ -87,13 +87,13 @@ const Checkout = () => {
           import.meta.env.VITE_STORE_ID
         }/webpay`,
         {
+          contactInfo,
           totalAmount: totalAmount + shippingCost,
           customer: currentUser._id,
-          ...contactInfo,
           shippingAddress: selectedAddress,
           details,
           payments: [{ paymentTypeId: 10, amount: totalAmount / 1.19 }],
-          cart,
+          // cart,
         },
       );
 
@@ -105,117 +105,120 @@ const Checkout = () => {
   };
 
   return (
-    <Box sx={{ p: 4, maxWidth: 600, margin: 'auto' }}>
-      <Typography variant='h4' gutterBottom>
-        Checkout
-      </Typography>
-
-      {/* Datos del Usuario */}
-      <Box component='form' noValidate autoComplete='off' sx={{ mt: 3 }}>
-        <Typography variant='h6' gutterBottom>
-          Datos del Usuario
+    console.log(contactInfo),
+    (
+      <Box sx={{ p: 4, maxWidth: 600, margin: 'auto' }}>
+        <Typography variant='h4' gutterBottom>
+          Checkout
         </Typography>
-        <TextField
-          label='Nombre'
-          name='name'
-          fullWidth
-          margin='normal'
-          value={contactInfo.name}
-          onChange={handleContactChange}
-        />
-        <TextField
-          label='Teléfono'
-          name='phone'
-          fullWidth
-          margin='normal'
-          value={contactInfo.phone}
-          onChange={handleContactChange}
-        />
-        <TextField
-          label='Correo Electrónico'
-          name='email'
-          fullWidth
-          margin='normal'
-          value={contactInfo.email}
-          onChange={handleContactChange}
-        />
 
-        {/* Autocomplete para seleccionar dirección */}
-        <Autocomplete
-          options={addresses}
-          getOptionLabel={(option) =>
-            `${option.street} ${option.number}, ${option.city}, ${option.region}`
-          }
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label='Seleccionar dirección'
-              variant='outlined'
-              fullWidth
-            />
-          )}
-          value={selectedAddress}
-          onChange={handleAddressSelect}
-          sx={{ margin: '10px 0' }}
-        />
-      </Box>
+        {/* Datos del Usuario */}
+        <Box component='form' noValidate autoComplete='off' sx={{ mt: 3 }}>
+          <Typography variant='h6' gutterBottom>
+            Datos del Usuario
+          </Typography>
+          <TextField
+            label='Nombre'
+            name='name'
+            fullWidth
+            margin='normal'
+            value={contactInfo.name}
+            onChange={handleContactChange}
+          />
+          <TextField
+            label='Teléfono'
+            name='phone'
+            fullWidth
+            margin='normal'
+            value={contactInfo.phone}
+            onChange={handleContactChange}
+          />
+          <TextField
+            label='Correo Electrónico'
+            name='email'
+            fullWidth
+            margin='normal'
+            value={contactInfo.email}
+            onChange={handleContactChange}
+          />
 
-      <Divider sx={{ my: 3 }} />
-
-      {/* Resumen del Carrito */}
-      <Box>
-        <Typography variant='h6' gutterBottom>
-          Resumen del Carrito
-        </Typography>
-        <List>
-          {cart.map((item) => (
-            <ListItem key={item.id} disableGutters>
-              <ListItemText
-                primary={`${item.name} x${item.quantity}`}
-                secondary={`$${item.price.toLocaleString()} cada uno`}
+          {/* Autocomplete para seleccionar dirección */}
+          <Autocomplete
+            options={addresses}
+            getOptionLabel={(option) =>
+              `${option.street} ${option.number}, ${option.city}, ${option.region}`
+            }
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label='Seleccionar dirección'
+                variant='outlined'
+                fullWidth
               />
-              <Typography variant='body2'>
-                ${(item.price * item.quantity).toLocaleString()}
-              </Typography>
-            </ListItem>
-          ))}
-        </List>
-        <Divider sx={{ my: 2 }} />
+            )}
+            value={selectedAddress}
+            onChange={handleAddressSelect}
+            sx={{ margin: '10px 0' }}
+          />
+        </Box>
 
-        {/* Total y Costo de Envío */}
-        <Box display='flex' justifyContent='space-between'>
-          <Typography variant='body1'>Subtotal:</Typography>
-          <Typography variant='body1'>
-            ${totalAmount.toLocaleString()}
+        <Divider sx={{ my: 3 }} />
+
+        {/* Resumen del Carrito */}
+        <Box>
+          <Typography variant='h6' gutterBottom>
+            Resumen del Carrito
           </Typography>
+          <List>
+            {cart.map((item) => (
+              <ListItem key={item.id} disableGutters>
+                <ListItemText
+                  primary={`${item.name} x${item.quantity}`}
+                  secondary={`$${item.price.toLocaleString()} cada uno`}
+                />
+                <Typography variant='body2'>
+                  ${(item.price * item.quantity).toLocaleString()}
+                </Typography>
+              </ListItem>
+            ))}
+          </List>
+          <Divider sx={{ my: 2 }} />
+
+          {/* Total y Costo de Envío */}
+          <Box display='flex' justifyContent='space-between'>
+            <Typography variant='body1'>Subtotal:</Typography>
+            <Typography variant='body1'>
+              ${totalAmount.toLocaleString()}
+            </Typography>
+          </Box>
+          <Box display='flex' justifyContent='space-between'>
+            <Typography variant='body1'>Costo de Envío:</Typography>
+            <Typography variant='body1'>
+              ${shippingCost > 0 ? shippingCost.toLocaleString() : 'Gratis'}
+            </Typography>
+          </Box>
+          <Divider sx={{ my: 2 }} />
+          <Box display='flex' justifyContent='space-between'>
+            <Typography variant='h6'>Total:</Typography>
+            <Typography variant='h6'>
+              ${(totalAmount + shippingCost).toLocaleString()}
+            </Typography>
+          </Box>
         </Box>
-        <Box display='flex' justifyContent='space-between'>
-          <Typography variant='body1'>Costo de Envío:</Typography>
-          <Typography variant='body1'>
-            ${shippingCost > 0 ? shippingCost.toLocaleString() : 'Gratis'}
-          </Typography>
-        </Box>
-        <Divider sx={{ my: 2 }} />
-        <Box display='flex' justifyContent='space-between'>
-          <Typography variant='h6'>Total:</Typography>
-          <Typography variant='h6'>
-            ${(totalAmount + shippingCost).toLocaleString()}
-          </Typography>
-        </Box>
+
+        {/* Botón de Confirmar Compra */}
+        <Button
+          variant='contained'
+          color='primary'
+          onClick={handleFlowPayment}
+          fullWidth
+          sx={{ mt: 3 }}
+          disabled={!selectedAddress}
+        >
+          Confirmar Compra
+        </Button>
       </Box>
-
-      {/* Botón de Confirmar Compra */}
-      <Button
-        variant='contained'
-        color='primary'
-        onClick={handleFlowPayment}
-        fullWidth
-        sx={{ mt: 3 }}
-        disabled={!selectedAddress}
-      >
-        Confirmar Compra
-      </Button>
-    </Box>
+    )
   );
 };
 
