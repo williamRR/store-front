@@ -9,8 +9,8 @@ export const paths = [
     id: 'landing',
     path: '/',
     name: 'Landing',
-    component: <CategoriesSection />,
     accesible: 'all',
+    component: <CategoriesSection />,
   },
   {
     id: 'Verify',
