@@ -25,7 +25,7 @@ const AuthModal = ({ open, handleClose }) => {
     setError,
   } = useForm();
   const [view, setView] = useState('login'); // 'login', 'register', 'forgotPassword'
-  const { login, register, forgotPassword } = useAuth();
+  const { login, register, forgotPassword, googleLogin } = useAuth();
 
   // Estado para manejar la visibilidad de la contraseña
   const [showPassword, setShowPassword] = useState(false);
@@ -271,6 +271,17 @@ const AuthModal = ({ open, handleClose }) => {
           </Typography>
           {renderForm()}
         </form>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+          <Button
+            variant='contained'
+            onClick={() => {
+              googleLogin();
+              handleClose();
+            }}
+          >
+            Iniciar sesión con Google
+          </Button>
+        </Box>
       </Box>
     </Modal>
   );

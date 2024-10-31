@@ -2,22 +2,23 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import {
   getAuth,
-  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
   sendEmailVerification,
   signOut,
+  signInWithPopup,
 } from 'firebase/auth';
 import axios from 'axios';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyCn5ZgUFZhmVmSNcHSK8sxq4jBIKGD777w',
-  authDomain: 'ecommerce-2e3dc.firebaseapp.com',
-  projectId: 'ecommerce-2e3dc',
-  storageBucket: 'ecommerce-2e3dc.appspot.com',
-  messagingSenderId: '916723138356',
-  appId: '1:916723138356:web:7837bdedadc5e02b252f61',
-  measurementId: 'G-3WMDPN562N',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
@@ -52,7 +53,7 @@ export const AuthProvider = ({ children }) => {
       }/${role}/${user.email}`,
     );
 
-    const { _id, addresses } = data;
+    const { _id = '', addresses = [] } = data;
 
     const userData = {
       _id,
@@ -67,6 +68,49 @@ export const AuthProvider = ({ children }) => {
 
     setCurrentUser(userData);
     localStorage.setItem('user', JSON.stringify(userData)); // Persistencia de usuario
+  };
+
+  const googleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      const idTokenResult = await user.getIdTokenResult(); // Obtén el token y el rol
+      const role = idTokenResult.claims.role || 'Customer'; // Rol predeterminado
+
+      // Llama al endpoint de backend con el token de Google para obtener más datos
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_API_URL}/stores/${
+          import.meta.env.VITE_STORE_ID
+        }/${role}/${user.email}`,
+        {
+          headers: {
+            Authorization: `Bearer ${idTokenResult.token}`,
+          },
+        },
+      );
+
+      const { _id = '', addresses = [] } = data; // Datos adicionales del backend
+
+      // Crea el objeto de usuario con los datos de Firebase y el backend
+      const userData = {
+        _id,
+        addresses,
+        uid: user.uid,
+        email: user.email,
+        role,
+        emailVerified: user.emailVerified,
+        idToken: idTokenResult.token,
+        refreshToken: user.refreshToken,
+      };
+
+      setCurrentUser(userData); // Guarda el usuario en el estado
+      localStorage.setItem('user', JSON.stringify(userData)); // Persistencia de usuario en localStorage
+
+      console.log('Usuario autenticado y registrado exitosamente');
+    } catch (error) {
+      console.error('Error en la autenticación o registro:', error);
+    }
   };
 
   // Registro de usuario
@@ -183,6 +227,7 @@ export const AuthProvider = ({ children }) => {
     register,
     login,
     logout,
+    googleLogin,
     forgotPassword,
   };
 
