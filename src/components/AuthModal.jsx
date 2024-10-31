@@ -15,6 +15,7 @@ import { toast } from 'react-toastify';
 import { motion } from 'framer-motion'; // Para animación
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { Google as GoogleIcon } from '@mui/icons-material';
 
 const AuthModal = ({ open, handleClose }) => {
   const {
@@ -273,10 +274,20 @@ const AuthModal = ({ open, handleClose }) => {
         </form>
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
           <Button
-            variant='contained'
+            variant='outlined'
+            startIcon={<GoogleIcon />}
             onClick={() => {
               googleLogin();
               handleClose();
+              toast.success('Inicio de sesión exitoso');
+            }}
+            sx={{
+              mt: 2,
+              color: 'black',
+              borderColor: 'black',
+              '&:hover': {
+                backgroundColor: '#f5f5f5',
+              },
             }}
           >
             Iniciar sesión con Google
