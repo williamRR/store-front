@@ -141,7 +141,6 @@ export const AuthProvider = ({ children }) => {
       console.log('Correo de verificación enviado');
     } catch (error) {
       console.log(error);
-      setError(error.message);
       throw error;
     }
   };

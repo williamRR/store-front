@@ -34,7 +34,6 @@ const AuthModal = ({ open, handleClose }) => {
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   const onSubmit = async (data) => {
-    console.log('subtimiti');
     try {
       if (view === 'login') {
         console.log('Iniciar sesión con:', data);
@@ -82,7 +81,17 @@ const AuthModal = ({ open, handleClose }) => {
         type: 'manual',
         message: 'Verifica tu casilla de correo',
       });
+    } else if (
+      error.response?.data?.message.includes(
+        'El correo electrónico ya está en uso.',
+      )
+    ) {
+      setError('email', {
+        type: 'manual',
+        message: 'Este correo ya está registrado',
+      });
     } else {
+      console.log(error);
       setError('email', {
         type: 'manual',
         message: 'Error desconocido. Verifica tus datos.',
