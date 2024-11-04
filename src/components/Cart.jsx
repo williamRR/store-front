@@ -117,7 +117,7 @@ const Cart = () => {
         `${import.meta.env.VITE_API_URL}/stores/${
           import.meta.env.VITE_STORE_ID
         }/sales`,
-        body,
+        { saleData: body, userId: currentUser._id },
         {
           headers: { Authorization: `Bearer ${accessToken}` },
         },
