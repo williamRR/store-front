@@ -206,7 +206,7 @@ const Cart = () => {
             <FormControlLabel
               value='transfer'
               control={<Radio />}
-              label='Transferencia (16.387.103-3)'
+18.329.557-8
             />
           </RadioGroup>
         </DialogContent>
