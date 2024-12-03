@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import {
   Box,
   Button,
+  Checkbox,
   CircularProgress,
   debounce,
   Dialog,
@@ -28,24 +29,15 @@ import { useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // Ajustar la ruta si es necesario
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import { useCart } from '../context/CartContext';
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [availableTags, setAvailableTags] = useState([]);
   const [availableBrands, setAvailableBrands] = useState([]);
-  const [grouping, setGrouping] = useState('grouped');
 
   const locationState = useLocation().state || {};
   const { category: { _id: categoryId = 'all' } = {} } = locationState;
 
-  const handleGroupingChange = (event) => {
-    setGrouping(event.target.value);
-  };
-  const {
-    state: { isOpen, cart, totalAmount },
-    dispatch,
-  } = useCart();
   const [pagination, setPagination] = useState({
     page: 1,
     totalPages: 1,
@@ -103,6 +95,8 @@ const ProductsPage = () => {
     }
   }, [categoryId]);
 
+  const [showOutOfStock, setShowOutOfStock] = useState(false);
+
   // 2. useEffect para obtener los productos cuando cambian los filtros o la paginación
   useEffect(() => {
     const fetchProducts = async () => {
@@ -117,7 +111,7 @@ const ProductsPage = () => {
           limit: pagination.limit,
           sort: pagination.sort,
           order: pagination.order,
-          grouping,
+          stock: !showOutOfStock,
         });
         const { data } = res;
         setAvailableTags(data.availableFilters.tags);
@@ -148,7 +142,7 @@ const ProductsPage = () => {
     pagination.limit,
     pagination.sort,
     pagination.order,
-    grouping,
+    showOutOfStock,
   ]);
 
   const handlePageChange = (event, value) => {
@@ -168,19 +162,16 @@ const ProductsPage = () => {
       return { ...prevFilters, tags };
     });
   };
-  const { userData, accessToken } = useAuth();
-
-  const clearAllTags = () => {
-    setFilters((prevFilters) => ({ ...prevFilters, tags: [] }));
-  };
 
   const removeBrand = () => {
     setFilters((prevFilters) => ({ ...prevFilters, brand: null }));
   };
 
-  const [pdfModalOpen, setPdfModalOpen] = useState(false);
+  const handleOutOfStockChange = (event) => {
+    setShowOutOfStock(event.target.checked); // Actualiza el estado con el valor del checkbox
+  };
   const [receipt, setReceipt] = useState(null);
-
+  const [pdfModalOpen, setPdfModalOpen] = useState(false);
   return (
     <>
       <Dialog
@@ -273,19 +264,18 @@ const ProductsPage = () => {
             </FormControl>
           </Grid>
 
-          <Grid item xs={'auto'}>
-            <RadioGroup row value={grouping} onChange={handleGroupingChange}>
-              <FormControlLabel
-                value='grouped'
-                control={<Radio size='small' />}
-                label='Agrupados'
-              />
-              <FormControlLabel
-                value='ungrouped'
-                control={<Radio size='small' />}
-                label='Desagrupados'
-              />
-            </RadioGroup>
+          <Grid item xs='auto'>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={showOutOfStock}
+                  onChange={handleOutOfStockChange}
+                  size='small'
+                  color='primary'
+                />
+              }
+              label='Mostrar productos sin stock'
+            />
           </Grid>
 
           <Grid item xs={'auto'}>
@@ -337,7 +327,7 @@ const ProductsPage = () => {
               removeTag={removeTag}
               clearAllTags={() => {
                 removeBrand();
-                clearAllTags();
+                // clearAllTags();
               }}
             />
           </Grid>
