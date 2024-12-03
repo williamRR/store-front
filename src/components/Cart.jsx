@@ -100,7 +100,8 @@ const Cart = () => {
     if (paymentMethod === 'transbank') paymentType = 2;
     if (paymentMethod === 'transfer') paymentType = 3;
     const body = {
-      documentTypeId: import.meta.env.VITE_NODE_ENV === 'dev' ? 10 : 1,
+      // documentTypeId: import.meta.env.VITE_NODE_ENV === 'dev' ? 10 : 1,
+      documentTypeId: 1,
       emissionDate: Math.floor(new Date().getTime() / 1000),
       details,
       declareSii: 1,
@@ -206,7 +207,7 @@ const Cart = () => {
             <FormControlLabel
               value='transfer'
               control={<Radio />}
-18.329.557-8
+              label='Transferencia /18.329.557-8 '
             />
           </RadioGroup>
         </DialogContent>
