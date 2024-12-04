@@ -68,6 +68,13 @@ const ProfileSidebar = () => {
           </ListItemIcon>
           <ListItemText primary='Ir al Punto de Servicio' />
         </ListItem>
+
+        <ListItem button onClick={() => navigate('/stock')}>
+          <ListItemIcon>
+            <AssessmentIcon />
+          </ListItemIcon>
+          <ListItemText primary='Inventario' />
+        </ListItem>
       </List>
 
       {/* Divider para separar secciones */}

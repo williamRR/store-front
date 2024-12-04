@@ -17,6 +17,7 @@ import Addresses from './pages/Addresses';
 import FlowSuccess from './pages/FlowSuccess';
 import ClientOrders from './pages/ClientOrders';
 import Checkout from './pages/Checkout';
+import Stock from './pages/Stock';
 
 function AppContent() {
   const { loading } = useStoreConfig();
@@ -67,6 +68,7 @@ function AppContent() {
           path='/flow-success'
           element={<PrivateRoute element={FlowSuccess} />}
         />
+        <Route path='/stock' element={<PrivateRoute element={Stock} />} />
         <Route path='/checkout' element={<PrivateRoute element={Checkout} />} />
         <Route
           path='/my-orders'
