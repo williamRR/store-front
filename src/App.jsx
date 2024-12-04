@@ -69,7 +69,7 @@ function AppContent() {
           path='/flow-success'
           element={<PrivateRoute element={FlowSuccess} />}
         />
-        <Route path='/stock' element={<PrivateRoute element={Stock} />} />
+        {/* <Route path='/stock' element={<PrivateRoute element={Stock} />} /> */}
         <Route
           path='/ubications'
           element={<PrivateRoute element={Ubications} />}
