@@ -12,10 +12,8 @@ import HistoryIcon from '@mui/icons-material/History';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import HomeIcon from '@mui/icons-material/Home';
-import SettingsIcon from '@mui/icons-material/Settings';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import LogoutIcon from '@mui/icons-material/Logout';
-import PaymentIcon from '@mui/icons-material/Payment';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
@@ -86,24 +84,12 @@ const ProfileSidebar = () => {
               </ListItemIcon>
               <ListItemText primary='Historial de Ventas' />
             </ListItem>
-            <ListItem button onClick={() => navigate('/stock')}>
-              <ListItemIcon>
-                <AssessmentIcon />
-              </ListItemIcon>
-              <ListItemText primary='Inventario' />
-            </ListItem>
             <ListItem button onClick={() => navigate('/ubications')}>
               <ListItemIcon>
                 <StorefrontIcon />
               </ListItemIcon>
               <ListItemText primary='Ubicaciones' />
             </ListItem>
-            {/* <ListItem button onClick={() => navigate('/sales-reports')}>
-              <ListItemIcon>
-                <AssessmentIcon />
-              </ListItemIcon>
-              <ListItemText primary='Informes de Ventas' />
-            </ListItem> */}
           </List>
 
           <Divider sx={{ my: 2 }} />
