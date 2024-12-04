@@ -148,7 +148,7 @@ const Ubications = () => {
                                 </ListItemIcon>
                                 <ListItemText
                                   primary={item.product?.name}
-                                  secondary={`Cantidad: ${item.quantity}`}
+                                  // secondary={`Cantidad: ${item.quantity}`}
                                   primaryTypographyProps={{ color: 'primary' }}
                                 />
                               </ListItem>

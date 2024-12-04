@@ -37,7 +37,10 @@ const SalesHistory = () => {
   const [order, setOrder] = useState('desc');
 
   // Estado para el filtro de fechas
-  const [startDate, setStartDate] = useState('');
+  const [startDate, setStartDate] = useState(() => {
+    const today = new Date();
+    return new Date(today.getFullYear(), today.getMonth(), today.getDate()); // Establecer la fecha al inicio del día
+  });
   const [endDate, setEndDate] = useState('');
 
   // Estados para las nuevas métricas
@@ -142,24 +145,6 @@ const SalesHistory = () => {
                     Total de Ventas
                   </Typography>
                   <Typography variant='h4'>{totalSales}</Typography>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Card>
-            <CardContent>
-              {loading ? (
-                <Skeleton variant='rectangular' height={80} />
-              ) : (
-                <>
-                  <Typography variant='h6' color='textSecondary' gutterBottom>
-                    Total Ingresos
-                  </Typography>
-                  <Typography variant='h4'>
-                    {totalSalesAmount ? formatCurrency(totalSalesAmount) : '—'}
-                  </Typography>
                 </>
               )}
             </CardContent>
