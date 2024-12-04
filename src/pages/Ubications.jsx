@@ -26,7 +26,7 @@ const Ubications = () => {
       setLoading(true);
       const url = `${import.meta.env.VITE_API_URL}/stores/${
         import.meta.env.VITE_STORE_ID
-      }/ubications?limit=100`;
+      }/ubications?limit=100&sort=name&order=asc`;
       const response = await axios.get(url);
       setUbications(response.data.ubications);
     } catch (error) {
@@ -97,12 +97,7 @@ const Ubications = () => {
                   borderStyle: 'solid',
                 }}
               >
-                <ListItemText
-                  primary={ubication.name.concat(
-                    `: Total productos: ${ubication.totalQuantity}`,
-                  )}
-                  sx={{ pr: 2 }}
-                />
+                <ListItemText primary={ubication.name} sx={{ pr: 2 }} />
 
                 {openUbication === ubication._id ? (
                   <ExpandLessIcon
