@@ -16,8 +16,6 @@ import {
   InputLabel,
   MenuItem,
   Pagination,
-  Radio,
-  RadioGroup,
   Select,
   TextField,
 } from '@mui/material';
@@ -26,7 +24,6 @@ import axios from 'axios';
 import ProductCard from './ProductCard';
 import TagsBanner from './TagsBanner';
 import { useLocation } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // Ajustar la ruta si es necesario
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 const ProductsPage = () => {

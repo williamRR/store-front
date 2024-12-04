@@ -24,8 +24,6 @@ const ProductDetail = () => {
       try {
         const url = `${import.meta.env.VITE_API_URL}/products/${productId}`;
         const { data } = await axios.get(url);
-        console.log('data');
-        console.log(data);
         setProduct(data);
       } catch (error) {
         console.error('Error fetching product:', error);

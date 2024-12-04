@@ -64,16 +64,9 @@ const ProfileSidebar = () => {
 
         <ListItem button onClick={() => navigate('/products')}>
           <ListItemIcon>
-            <StorefrontIcon />
+            <SupportAgentIcon />
           </ListItemIcon>
           <ListItemText primary='Ir al Punto de Servicio' />
-        </ListItem>
-
-        <ListItem button onClick={() => navigate('/stock')}>
-          <ListItemIcon>
-            <AssessmentIcon />
-          </ListItemIcon>
-          <ListItemText primary='Inventario' />
         </ListItem>
       </List>
 
@@ -93,7 +86,18 @@ const ProfileSidebar = () => {
               </ListItemIcon>
               <ListItemText primary='Historial de Ventas' />
             </ListItem>
-
+            <ListItem button onClick={() => navigate('/stock')}>
+              <ListItemIcon>
+                <AssessmentIcon />
+              </ListItemIcon>
+              <ListItemText primary='Inventario' />
+            </ListItem>
+            <ListItem button onClick={() => navigate('/ubications')}>
+              <ListItemIcon>
+                <StorefrontIcon />
+              </ListItemIcon>
+              <ListItemText primary='Ubicaciones' />
+            </ListItem>
             {/* <ListItem button onClick={() => navigate('/sales-reports')}>
               <ListItemIcon>
                 <AssessmentIcon />
